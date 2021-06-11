@@ -1,0 +1,11 @@
+mutation createvirus($name: String) {
+  createInjectionVirus(injectionVirus:{name:$name}) {
+    error {
+      message
+    }
+    injectionVirus {
+      id
+      name
+    }
+  }
+}

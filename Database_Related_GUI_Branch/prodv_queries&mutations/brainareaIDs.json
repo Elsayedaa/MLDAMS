@@ -1,0 +1,6 @@
+query {
+  brainAreas {
+    id
+    name
+  }
+}

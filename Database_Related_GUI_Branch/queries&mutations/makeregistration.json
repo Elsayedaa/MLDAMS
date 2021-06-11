@@ -1,0 +1,11 @@
+mutation makeregistration($name: String, $path: String, $active: Boolean, $samid: String) {
+  createRegistrationTransform(makeActive: $active, registrationTransform: {name: $name, location: $path, sampleId: $samid}) {
+    error {
+      message
+    }
+    registrationTransform {
+      id
+      name
+    }
+  }
+}

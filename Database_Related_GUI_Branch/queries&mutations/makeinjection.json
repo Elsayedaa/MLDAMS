@@ -1,0 +1,10 @@
+mutation makeinj($samid: String, $brainareaID: String, $injectionvirusID: String, $fluorID: String) {
+  createInjection(injectionInput: {sampleId:$samid, brainAreaId: $brainareaID, injectionVirusId: $injectionvirusID, fluorophoreId: $fluorID}) {
+    error {
+      message
+    }
+    injection {
+      id
+    }
+  }
+}

@@ -1,0 +1,9 @@
+mutation createfluor($name:String) {
+  createFluorophore(fluorophore: {name:$name}) {
+    error
+    source {
+      id
+      name
+    }
+  }
+}

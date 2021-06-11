@@ -1,0 +1,15 @@
+query {
+  samples {
+    items {
+      id
+      sampleDate
+      injections {
+        id
+      }
+      activeRegistrationTransform {
+        id
+        name
+      }
+    }
+  }
+}

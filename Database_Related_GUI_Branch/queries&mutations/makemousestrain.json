@@ -1,0 +1,11 @@
+mutation cms($name: String) {
+  createMouseStrain(mouseStrain:{id:"", name:$name}) {
+    error {
+      message
+    }
+    mouseStrain {
+      id
+      name
+    }
+  }
+}

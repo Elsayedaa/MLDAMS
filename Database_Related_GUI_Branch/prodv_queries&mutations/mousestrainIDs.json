@@ -1,0 +1,6 @@
+query {
+  mouseStrains {
+    id
+    name
+  }
+}

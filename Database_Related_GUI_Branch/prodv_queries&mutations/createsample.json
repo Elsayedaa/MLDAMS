@@ -1,0 +1,10 @@
+mutation createSample($sample: SampleInput!) {
+  createSample(sample: $sample) {
+    error
+    source {
+      id
+      tag
+      createdAt
+    }
+  } 
+}

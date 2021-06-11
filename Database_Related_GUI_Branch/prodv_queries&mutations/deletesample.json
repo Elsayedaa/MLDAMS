@@ -1,0 +1,6 @@
+mutation deleteSample($sample: String!) {
+  deleteSample(id: $sample) {
+    error
+    id
+  } 
+}

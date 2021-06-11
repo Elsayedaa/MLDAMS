@@ -1,0 +1,12 @@
+mutation deleteSample($sample: SampleInput!) {
+  deleteSample(sample: $sample) {
+    error {
+      message
+    }
+    sample {
+      idNumber
+      tag
+      createdAt
+    }
+  } 
+}

@@ -1,0 +1,7 @@
+mutation AddNeuron($idString:String,$tag:String,$injectionId:String, $baID:String, $x:Float, $y:Float, $z:Float) {
+  createNeuron(neuron:{idString:$idString, tag:$tag, injectionId:$injectionId, brainAreaId:$baID, x:$x, y:$y, z:$z}) {
+    error {
+      message
+    }
+  }
+}

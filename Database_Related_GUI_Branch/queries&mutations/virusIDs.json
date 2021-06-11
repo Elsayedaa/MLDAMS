@@ -1,0 +1,6 @@
+query injection {
+  injectionViruses {
+    id
+    name
+  }
+}

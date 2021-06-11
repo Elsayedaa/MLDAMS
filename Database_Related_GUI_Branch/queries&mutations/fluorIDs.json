@@ -1,0 +1,6 @@
+query {
+  fluorophores {
+    id
+    name
+  }
+}
