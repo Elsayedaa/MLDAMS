@@ -1,3 +1,5 @@
+*note: please navigate to the text file to view it in correct formatting
+
 Contents:
 --------------------------------------
 1) About section
