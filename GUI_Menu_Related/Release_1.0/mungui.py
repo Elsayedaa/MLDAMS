@@ -1,6 +1,8 @@
 import sys
 import os
-appParentDir = r'\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch'
+from pathlib import Path
+filepath = Path(__file__)
+appParentDir = str(filepath.parent.absolute()).replace('x:', r'\\dm11\mousebrainmicro').replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 #sys.path.append(r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\Curation_Related_GUI_Branch")
