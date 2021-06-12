@@ -564,10 +564,10 @@ get_animal_id     get_tag    make_strain_id       |                      ^
                                             make_injection                                      
                                            /       |      \                                            
                                           /        |       \                                          
-                    make_injectionarea_ids   make_fluor_id   make_virus_id           
+                    make_injectionarea_ids  make_fluor_id   make_virus_id           
                      /    \                        ^                /    \
                     /      \                      / \              /      \
- get_injection_area   brainarea_ids   get_fluors  fluor_ids   virus_ids   get_injection_viruses
+ get_injection_area   brainarea_ids     get_fluors  fluor_ids  virus_ids  get_injection_viruses
 															
 
  2.27
