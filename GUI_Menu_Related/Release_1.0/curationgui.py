@@ -19,7 +19,6 @@ filepath = Path(__file__)
 appParentDir = str(filepath.parent.absolute()).replace('x:', r'\\dm11\mousebrainmicro').replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
-#sys.path.append(r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\Curation_Related_GUI_Branch")
 from tkinter import * 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -314,9 +313,6 @@ class Somacuration_GUI(Frame):
         else:
             selection = event[1]
             clickedindex = event[0]
-            #depreciated:
-            #selection = event
-            #clickedindex = list(self.CompleteNeurons.get(0,END)).index(event)
 
         #combines the current sample with the selection tag to generate a unique string key for:
             #self.iddoc
@@ -425,9 +421,6 @@ class Somacuration_GUI(Frame):
             if event != "":
                 selection = event[1]
                 clickedindex = 0
-                #depcreciated:
-                #selection = event
-                #clickedindex = list(self.SelectedNeurons.get(0,END)).index(event)
 
         #test if it also works with iddoc
         treeid = self.get_reviewTree_index(selection)
@@ -458,18 +451,12 @@ class Somacuration_GUI(Frame):
         array = pd.Series(list(enumerate(completelist))).values[filled]
         insert = np.vectorize(lambda x: self.OnCSelect(x), otypes = [tuple])
         np.where(insert(array))
-
-        #depreciated:
-        #for tag in list:s
-        #    if tag != "":
-        #        self.OnCSelect(str(tag))
   
         if len(filled) == 0:
             print("User attempted to insert all when there are no neurons to insert.")
         else:
             first = list(self.SelectedNeurons.get(0,END))[0]
             self.createEntryFrame(first)
-
 
     ######################################################################################
     #     Method for removing all tags into queue, called by the unqueue all button
@@ -479,10 +466,6 @@ class Somacuration_GUI(Frame):
         array = pd.Series(list(enumerate(selectedlist))).values
         uninsert = np.vectorize(lambda x: self.OnSSelect(x), otypes = [tuple])
         np.where(uninsert(array))
-        #depreciated:
-        #for tag in selectedlist:
-        #    tag = str(tag)
-        #    self.OnSSelect(tag)
 
     ######################################################################################
     # Method for making a data entry frame when a neuron in the treeview is clicked

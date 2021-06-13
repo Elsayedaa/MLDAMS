@@ -27,12 +27,7 @@ class anw:
                 rtrue_index = np.where(rmatch_bools(sheetarray) == True)
                 self.sheets = list(sheetarray[rtrue_index])
                 print("Done!")
-                #depreciated:
-                #self.sheets = []
-                #for sheet in self.anw.sheetnames:
-                #    if re.search(r"^\d{4}-\d{2}-\d{2}$",sheet):
-                #        self.sheets.append(sheet)
-                #print("Done!")
+
             except FileNotFoundError:
                 print("Active Neuron Worksheet directory not found, location may have moved.\nReplace the 'dir' variable in ANWparser.py with the updated directory.")
                 print("\nOr...")
@@ -60,7 +55,7 @@ class anw:
             self.ws = pd.DataFrame(active_sheet.values)
             print(f"You are now accessing sample: {self.sample}\n")
             
-            #anw must be close because read_only mode uses lazy loading
+        #anw must be close because read_only mode uses lazy loading
         #self.anw.close() #closing is handled at the end of the GUI script     
         #editing the dataframe for ease of parsing
         self.ws.columns = self.ws.iloc[0].values
@@ -74,19 +69,6 @@ class anw:
         fullvals = np.where(self.ws.index.values != None)[0]
         secvals = fullvals + 1
         self.ws.index.values[secvals] = self.ws.index.values[fullvals] + 'x'
-
-        #depreciated snipped where I did the above operation with a for loop
-        #ni = []
-        #for i,n in enumerate(self.ws.index):
-        #    if n == None:
-        #        if self.ws.index[i-1] != None:
-        #           ns = self.ws.index[i-1]+'x'
-        #            ni.append(ns)
-        #        else:
-        #            ni.append(i)
-        #    else:
-        #        ni.append(n)    
-        #self.ws.index = ni
         
         #intializing the count variables by running 'List' methods
         self.secpassneededList = self.secpassneeded_make_list()

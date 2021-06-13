@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 filepath = Path(__file__)
 appParentDir = str(filepath.parent.absolute()).replace('x:', r'\\dm11\mousebrainmicro').replace(r'\Database_Related_GUI_Branch','')
-#sys.path.append(r"{}\Database_Related_GUI_Branch".format(appParentDir))
 import requests
 import re
 import os
@@ -26,28 +25,14 @@ class MLDB_sample_enter:
         self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir)  
         self.GQLInstance = GQLInstance
 
-        #Depreciated code: both instances now have all the same variables except the URL
-        #_______________________________________________________________________________
         #Initializing different variables for each database instance
         #-graphql server url:
-        #if self.GQLInstance == 'http://localhost:9671/graphql':
-        #    print("You are now accessing the SANDBOX database instance.")
+        if self.GQLInstance == 'http://localhost:9671/graphql':
+            print("You are now accessing the SANDBOX database instance.")
 
-            #json response object subscription structure: response['data'][Mutation variable][Response source][Desired data]
-            #the "Response source" subscription will vary between instances
-        #    self.make_strain_id_source = 'mouseStrain'
-        #    self.make_virus_id_source = 'injectionVirus'
-        #    self.make_fluor_id_source = 'fluorophore'
-        #    self.createSample_source = 'sample'
+        if self.GQLInstance == 'http://mouselight.int.janelia.org:9671/graphql':
+            print("You are now accessing the PRODUCTION database instance.")
 
-            #path for queries and mutations
-            #path structure: "{self.folderpath}\{self.GQLDir}\queryORmutation.json")
-        #    self.GQLDir = r'queries&mutations'
-
-        #Same structure as above for the production database
-        #elif self.GQLInstance == 'http://mouselight.int.janelia.org:9671/graphql':
-            #print("You are now accessing the PRODUCTION database instance.")
-        #_______________________________________________________________________________
         self.make_strain_id_source = 'source'
         self.make_virus_id_source = 'source'
         self.make_fluor_id_source = 'source'
@@ -56,7 +41,7 @@ class MLDB_sample_enter:
         #else:
             #print("URL entered does not match Sandbox or Production database.")
 
-    #                                                Standalone functions:
+    #                            Standalone functions:
 
     #retrieves animal ID from imaged samples board for any sample entered as an argument
     def get_animalID(self, sample):

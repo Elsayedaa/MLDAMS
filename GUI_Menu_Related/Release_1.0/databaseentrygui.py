@@ -13,8 +13,6 @@ from MLDB_sample_enter import MLDB_sample_enter
 from MLDB_neuron_enter import Neuronposter
 import startpage
 
-#sys.path.append(r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\Curation_Related_GUI_Branch")
-#sys.path.append(r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\Database_Related_GUI_Branch")
 class DBSelect_GUI(Frame):
     def __init__(self, parent, controller): 
         Frame.__init__(self,parent)

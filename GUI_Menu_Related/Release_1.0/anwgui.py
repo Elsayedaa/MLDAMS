@@ -10,7 +10,6 @@ from ANWparser import anw
 from PIL import ImageTk, Image
 from io import StringIO
 import startpage
-#sys.path.append(r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\Curation_Related_GUI_Branch")
 
 class ANWparser_GUI(Frame):
     def __init__(self, parent, controller): 

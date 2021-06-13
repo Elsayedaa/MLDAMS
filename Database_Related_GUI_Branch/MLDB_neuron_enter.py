@@ -21,21 +21,16 @@ class Neuronposter:
     def __init__(self, sample, GraphQLInstance):
         self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
         self.GraphQLInstance = GraphQLInstance
-        #Depreciated code: both instances now have all the same variables except the URL
-        #_______________________________________________________________________________
+
         #Initializing different variables for each database instance
         #graphql server url:
-        #if self.GraphQLInstance == "http://localhost:9671/graphql":
-        #    print("You are now accessing the SANDBOX database instance.")
-        #    print()
-            #path for queries and mutations
-            #path structure: "{self.folderpath}\{self.GQLDir}\queryORmutation.json")
-        #    self.GQLDir = r'queries&mutations'
-
+        if self.GraphQLInstance == "http://localhost:9671/graphql":
+            print("You are now accessing the SANDBOX database instance.")
+            
         #Same structure as above for the production database    
-        #if self.GraphQLInstance == "http://mouselight.int.janelia.org:9671/graphql":
-        #    print("You are now accessing the PRODUCTION database instance.")
-        #_______________________________________________________________________________
+        if self.GraphQLInstance == "http://mouselight.int.janelia.org:9671/graphql":
+            print("You are now accessing the PRODUCTION database instance.")
+
         self.GQLDir = r'prodv_queries&mutations'
 
         self.sample = sample #sample name entered as a class arg
@@ -117,20 +112,7 @@ class Neuronposter:
 
     def post_neuron(self, tag):
         with open(r"{}\{}\addneuron.json".format(self.folderpath, self.GQLDir)) as addneuron:
-            #Depreciated: brain areas are now looked up the same way in both instances
-            #_______________________________________________________________________________
-            #IDs for the brain areas are looked up based on which instance of the database you are accessing
-            #Uses the locator() function from the somalocator script in the Curation_Related folder to look up the soma location NAME for each neuron tag
-            #Uses the brainarea_ids() function to lookup the ID associated with the brain area name
-            #In the production database, brain area names with commas in them are not allowed
-            #If accessing the production database, commas are removed from the brain area name during ID lookup
-            #_______________________________________________________________________________
             try:
-            #_______________________________________________________________________________
-            #    if self.GraphQLInstance == "http://localhost:9671/graphql":
-            #        brainAreaID = self.brainarea_ids[locator(self.sample,tag)]
-            #    if self.GraphQLInstance == "http://mouselight.int.janelia.org:9671/graphql":
-            #_______________________________________________________________________________
                 brainAreaID = self.brainarea_ids[locator(self.sample,tag).replace(",","")]
             except KeyError:
                 print(f"Brain area for {tag} does not exist in the Allen Atlas. Check for typos in the soma.txt file.")
