@@ -676,6 +676,89 @@ get_animal_id     get_tag    make_strain_id       |                      ^
                                            3
                                    GUI Documentation:
 ________________________________________________________________________________________________
-*In progres...
+The GUI for MLDAMS is written using the tkinter library and has the same dependencies that are 
+mentioned in the backend module documentation.
+
+3.1
+Overview:
+---------
+The GUI consists of 8 modules, all of which are in the GUI_Menu_Related folder. Here is a 
+quick overview of the modules:
+
+	-main.py: The controller module for the rest of the modules. Handles starting all 
+	the othermodules in the app. Also handles starting and joining extra processes. 
+	Currently, no extra processes are started in the app but the capability to start 
+	extra processes is there.
+
+	-startpage.py: Handles the start menu for the app.
+
+	-anw.py: Handles the Neuron Worksheet Report Generator service, which utilizes 
+	the anw.py backend module.
+
+	-locatorgui.py: Handles the Soma Brain Area Locator service, which utilizes the 
+	somalocator.py backend module.
+
+	-resultmkrgui.py: Handles the Registration Result Folder Maker service, which 
+	utilizes the mk_result_dir.py backend module. 
+
+	-mungui.py: Handles the Unfinished Neuron Mover service which utlizes the 
+	move_unf_neurons.py backend module.
+
+	-curationgui.py: Handles two separate services in the app, both of which are 
+	involved in the curation process of the annotator pipeline. The first service is 
+	Temporary Curation Folder Maker, which utilizes the mk_temp_curation.py backend 
+	module. The second service is the Curation Helper, which helps the user document 
+	the curation process and calls the MLCuration.m script to create the final tracing 
+	files to be uploaded to the Neuron Browser. 
+
+	-databaseentrygui.py: Handles the Database Sample & Neuron Entry services which 
+	utilizes the MLDB_neuron_enter.py and MLDB_sample_enter.py backend modules. 
+                                         
+					 3.2
+                   :::::::::::::::Modules, in depth::::::::::::::
+		   
+3.21		   
+main: This module consists of the controller class for the app, MLDAMS, which inherits
+----- the Tk class to create the main app window when the MLDAMS class is called. Upon calling
+the class, the base app window configurations are defined. This includes creating a 
+template frame which will be taken as an argument for all other services that are initialized.
+The template frame is saved as an instance variabled called self.mainframe. Then, the 
+show_frame method (detailed in the methods section) is called on the StartPage class to raise
+the main page of the app. 
+
+
+	-------
+	Methods:
+	-------
+	
+	show_frame(cont, *args, **kwargs):
+		-Takes classes for other services (which inherit the Frame class from tkinter)
+		 in the app as the 'cont' argument.
+		-Service classes are initialized and a new frame for the service is raised, 
+		 the service class is saved as an instance variabe called self.frame.
+		-self.frame is then added to the grid via self.frame.grid()
+		-If another service classe has already been initialized when show_frame is 
+		 called for another service class, self.frame.destroy() is called on the 
+		 service class that has already been initialized. The newly initialzed 
+		 service class' frame will then be raised.
+		-When a new service class is initialized, it takes self.mainframe, self, *args
+		and **kwargs as arguments.
+			-self.mainframe is the template frame for each service.
+			-self is the main class object itself, which allows the main object's
+			 methods to be called from other service class objects. 
+			 
+	startproc(proc): 
+		-This method allows for the initialization of multiprocessing processes.
+	
+	joinproc(proc):
+		-This method allows for the joining of multiprocessing processes. 
+		 
+	
+	
+	
+
+
+
+		   
 
 
