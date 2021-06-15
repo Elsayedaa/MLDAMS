@@ -2,9 +2,10 @@
 #VSCode falsely detects an indentation error wherever I use fr strings. Code still works regardless.
 #*
 import sys
-from pathlib import Path
-filepath = Path(__file__)
-appParentDir = str(filepath.parent.absolute()).replace('x:', r'\\dm11\mousebrainmicro').replace(r'\Database_Related_GUI_Branch','')
+from pathlib import PurePath
+filepath = PurePath(__file__)
+abspath = str(filepath.parent)
+appParentDir = abspath.replace(abspath[0:2], r'\\dm11\mousebrainmicro').replace(r'\Database_Related_GUI_Branch','')
 import requests
 import re
 import os

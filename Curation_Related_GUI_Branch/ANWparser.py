@@ -1,6 +1,8 @@
 #Updated as of 5/12/2021 for GUI compatability
 
 import openpyxl
+import requests
+from io import BytesIO
 import pandas as pd
 import numpy as np
 import datetime
@@ -10,17 +12,21 @@ import numpy as np
 
 class anw:
     def __init__(self):
-        #calling openpyxl.load_workbook() to load the active neuron worksheet from the OneDrive directory
-        #the directory variable might need to be changed if the file is moved
-        #The file is on Cameron's OneDrive, make sure he shares it with you
-        dir = r'C:\Users\elsayeda\Howard Hughes Medical Institute\Arshadi, Cameron - Neuron Worksheets\Active Neuron Worksheet.xlsx'
+        
+        #retrieving the excel file via the OneDrive link 
+        link = 'https://hhmionline-my.sharepoint.com/:x:/g/personal/arshadic_hhmi_org/EVEGrY83BCNHuVFt8c2awiwB3pzqdR3UhZhLV0Z8--U_yA?e=1oNWeW'
+        OneDriveDDLink = lambda url: url.replace(url[url.index('?')+1:], 'download=1')
+        dllink = OneDriveDDLink(link)
+        dl = requests.get(dllink)
+        excelfile = BytesIO(dl.content)
+
         self.anw = 0
         while self.anw == 0:
             print("Loading active neuron worksheet...")
             try:
                 #active neuron worksheet is read in data_only mode to read cell data instead of functions
                 #it is also read in read_only mode to optimize loading time
-                self.anw = openpyxl.load_workbook(dir, data_only = True, read_only = True)
+                self.anw = openpyxl.load_workbook(excelfile, data_only = True, read_only = True)
 
                 sheetarray = np.array(self.anw.sheetnames)
                 rmatch_bools = np.vectorize(lambda x: bool(re.search(r"\d{4}-\d{2}-\d{2}$",x)))
@@ -233,3 +239,4 @@ class anw:
         self.needsconsensus()
         self.consensuscomplete()
         self.percentcomplete()
+
