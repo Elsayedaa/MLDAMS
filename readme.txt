@@ -693,7 +693,7 @@ quick overview of the modules:
 
 	-startpage.py: Handles the start menu for the app.
 
-	-anw.py: Handles the Neuron Worksheet Report Generator service, which utilizes 
+	-anwgui.py: Handles the Neuron Worksheet Report Generator service, which utilizes 
 	the anw.py backend module.
 
 	-locatorgui.py: Handles the Soma Brain Area Locator service, which utilizes the 
@@ -754,6 +754,21 @@ the main page of the app.
 	joinproc(proc):
 		-This method allows for the joining of multiprocessing processes. 
 		 
+		 
+3.22
+startpage: This module contains the code for the start menu page of the app. The start menu
+---------- is a class by the name of StartPage, which inherits the Frame class from tkinter. 
+           The StartPage class takes two arguments when it is initialialized that are common
+	   for each service class. These include parent and controller. The parent argument
+	   refers to the self.mainframe attribute from the main MLDAMS class and the controller
+	   argument refers to the self attribut from the main MLDAMS class. 
+	   
+	   The key items this class defines are the topmenu and the buttons that lead to each
+	   of the services in the app. These buttons call controller.show_frame(cont) on their
+	   respective services.
+	   
+	   No methods are defined in this class. 
+	   
 	
 	
 	
