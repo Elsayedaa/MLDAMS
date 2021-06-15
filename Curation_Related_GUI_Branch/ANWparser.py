@@ -13,17 +13,18 @@ import numpy as np
 class anw:
     def __init__(self):
         
-        #retrieving the excel file via the OneDrive link 
-        link = 'https://hhmionline-my.sharepoint.com/:x:/g/personal/arshadic_hhmi_org/EVEGrY83BCNHuVFt8c2awiwB3pzqdR3UhZhLV0Z8--U_yA?e=1oNWeW'
-        OneDriveDDLink = lambda url: url.replace(url[url.index('?')+1:], 'download=1')
-        dllink = OneDriveDDLink(link)
-        dl = requests.get(dllink)
-        excelfile = BytesIO(dl.content)
+        #Active Neuron Worksheet OneDrive link:
+        self.link = 'https://hhmionline-my.sharepoint.com/:x:/g/personal/arshadic_hhmi_org/EVEGrY83BCNHuVFt8c2awiwB3pzqdR3UhZhLV0Z8--U_yA?e=baTlLh'
 
         self.anw = 0
         while self.anw == 0:
             print("Loading active neuron worksheet...")
             try:
+                #retrieving excel file binary from the onedrive link
+                link = self.link.replace(self.link[self.link.index('?')+1:], 'download=1')
+                dl = requests.get(link)
+                excelfile = BytesIO(dl.content)
+
                 #active neuron worksheet is read in data_only mode to read cell data instead of functions
                 #it is also read in read_only mode to optimize loading time
                 self.anw = openpyxl.load_workbook(excelfile, data_only = True, read_only = True)
@@ -34,11 +35,13 @@ class anw:
                 self.sheets = list(sheetarray[rtrue_index])
                 print("Done!")
 
-            except FileNotFoundError:
-                print("Active Neuron Worksheet directory not found, location may have moved.\nReplace the 'dir' variable in ANWparser.py with the updated directory.")
-                print("\nOr...")
-                dir = input("Enter the new Active Neuron Worksheet directory")
-                print()
+            #new link can be pasted into the cl terminal if the original is broken
+            except Exception as e:
+                if 'File is not a zip file' in e.args:
+                    print("Active Neuron Worksheet link is not giving a response, link may be broken.\nReplace the 'link' variable in ANWparser.py with the new link.")
+                    print("\nOr...")
+                    self.link = input("Enter the new Active Neuron Worksheet link here (Note, this is not a permanent fix.):")
+                    print()
 
     def set_activesheet(self, *sample):            
         #running a loop to initialize the sample worksheet as a class variable
@@ -239,4 +242,3 @@ class anw:
         self.needsconsensus()
         self.consensuscomplete()
         self.percentcomplete()
-
