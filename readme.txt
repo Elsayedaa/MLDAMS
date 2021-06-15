@@ -13,6 +13,9 @@ Contents:
 		2.27) MLDB_sample_enter
 		2.28) mk_result_dir
 3) GUI Documentation (in progress)
+	3.1) Overview
+	3.2) Modules, in depth
+		3.21) main
                                                                         
                                              1 
                                            About:
@@ -36,8 +39,6 @@ in the documentation section:
 
 	Registration Related Modules:
 	-mk_result_dir
-
-*Note, this file does not contain documentation for the GUI menu modules.
 
                                                2
                                   Backend Module Documentation:
