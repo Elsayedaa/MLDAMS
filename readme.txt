@@ -16,6 +16,15 @@ Contents:
 	3.1) Overview
 	3.2) Modules, in depth
 		3.21) main
+		3.22) startpage
+		3.23) anwgui
+		3.24) locatorgui
+		3.25) resultmkrgui
+		3.26) mungui
+		3.27) curationgui
+			3.271) Curation_GUI
+			3.272) Somacuration_GUI
+			
                                                                         
                                              1 
                                            About:
@@ -87,6 +96,7 @@ The MLDAMS also utilizes standard libraries including:
 -os
 -os.path
 -pathlib
+-requests
 -shutil
 -sys
 -pickle
@@ -121,6 +131,11 @@ The MLDAMS also utilizes standard libraries including:
 			 syncing. You shouldn't have to worry about that issue since object 
 			 closing is handled by the GUI, but this knowledge may help with 
 			 troubleshooting if things go terribly wrong.
+			-Update: ANWparser now utilizes the binary of a requests.get() return
+			 to retrieve the Active Neuron Worksheet from the shared OneDrive link.
+			 Therefore, it is utilizing a copy of the worksheet rather than the 
+			 original. This should completely prevent syncing issues.
+			 
 		-creates a list of active samples within the Active Neuron Worksheet and saves 
 		 it in an instance variable called self.sheets
 
@@ -687,33 +702,36 @@ The GUI consists of 8 modules, all of which are in the GUI_Menu_Related folder. 
 quick overview of the modules:
 
 	-main.py: The controller module for the rest of the modules. Handles starting all 
-	the othermodules in the app. Also handles starting and joining extra processes. 
-	Currently, no extra processes are started in the app but the capability to start 
-	extra processes is there.
+	 the othermodules in the app. Also handles starting and joining extra processes. 
+	 Currently, no extra processes are started in the app but the capability to start 
+	 extra processes is there.
 
 	-startpage.py: Handles the start menu for the app.
 
 	-anwgui.py: Handles the Neuron Worksheet Report Generator service, which utilizes 
-	the anw.py backend module.
+	 the anw.py backend module.
 
 	-locatorgui.py: Handles the Soma Brain Area Locator service, which utilizes the 
-	somalocator.py backend module.
+	 somalocator.py backend module.
 
 	-resultmkrgui.py: Handles the Registration Result Folder Maker service, which 
-	utilizes the mk_result_dir.py backend module. 
+	 utilizes the mk_result_dir.py backend module. 
 
 	-mungui.py: Handles the Unfinished Neuron Mover service which utlizes the 
-	move_unf_neurons.py backend module.
+	 move_unf_neurons.py backend module.
 
 	-curationgui.py: Handles two separate services in the app, both of which are 
-	involved in the curation process of the annotator pipeline. The first service is 
-	Temporary Curation Folder Maker, which utilizes the mk_temp_curation.py backend 
-	module. The second service is the Curation Helper, which helps the user document 
-	the curation process and calls the MLCuration.m script to create the final tracing 
-	files to be uploaded to the Neuron Browser. 
+	 involved in the curation process of the annotator pipeline. The first service is 
+	 Temporary Curation Folder Maker, which utilizes the mk_temp_curation.py backend 
+	 module. The second service is the Curation Helper, which helps the user document 
+	 the curation process and calls the MLCuration.m script to create the final tracing 
+	 files to be uploaded to the Neuron Browser. 
 
 	-databaseentrygui.py: Handles the Database Sample & Neuron Entry services which 
-	utilizes the MLDB_neuron_enter.py and MLDB_sample_enter.py backend modules. 
+	 utilizes the MLDB_neuron_enter.py and MLDB_sample_enter.py backend modules. 
+
+To get a better idea of how I organized the GUI code, refer to the top answer on this stackoverflow 
+thread: https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
                                          
 					 3.2
                    :::::::::::::::Modules, in depth::::::::::::::
@@ -721,11 +739,11 @@ quick overview of the modules:
 3.21		   
 main: This module consists of the controller class for the app, MLDAMS, which inherits
 ----- the Tk class to create the main app window when the MLDAMS class is called. Upon calling
-the class, the base app window configurations are defined. This includes creating a 
-template frame which will be taken as an argument for all other services that are initialized.
-The template frame is saved as an instance variabled called self.mainframe. Then, the 
-show_frame method (detailed in the methods section) is called on the StartPage class to raise
-the main page of the app. 
+      the class, the base app window configurations are defined. This includes creating a 
+      template frame which will be taken as an argument for all other services that are 
+      initialized. The template frame is saved as an instance variabled called self.mainframe. 
+      Then, the show_frame method (detailed in the methods section) is called on the StartPage 
+      class to raise the main page of the app. 
 
 
 	-------
@@ -743,18 +761,19 @@ the main page of the app.
 		 service class that has already been initialized. The newly initialzed 
 		 service class' frame will then be raised.
 		-When a new service class is initialized, it takes self.mainframe, self, *args
-		and **kwargs as arguments.
-			-self.mainframe is the template frame for each service.
+		 and **kwargs as arguments.
+			-self.mainframe is the template frame for each service. In a service
+			 class, this argument is named 'parent'
 			-self is the main class object itself, which allows the main object's
-			 methods to be called from other service class objects. 
+			 methods to be called from other service class objects. In a service
+			 class, this argument is named 'controller'
 			 
 	startproc(proc): 
 		-This method allows for the initialization of multiprocessing processes.
 	
 	joinproc(proc):
 		-This method allows for the joining of multiprocessing processes. 
-		 
-		 
+		 		 
 3.22
 startpage: This module contains the code for the start menu page of the app. The start menu
 ---------- is a class by the name of StartPage, which inherits the Frame class from tkinter. 
@@ -769,12 +788,291 @@ startpage: This module contains the code for the start menu page of the app. The
 	   
 	   No methods are defined in this class. 
 	   
+3.23
+awngui: This modules contains the code for the Neuron Worksheet Report Generator service. The
+------- The service is defined in a class called ANWparser_GUI which inherits the Frame class 
+        from tkinter. The ANWparser_GUI class takes parent and controller as arguments, which
+	are described above. 
+	
+	The main elements defined in this service are two dropdown menus, a textbox and a 
+	button to return to the main menu. The top dropdown menu allows the user to select
+	a sample to parse. The second dropdown menu allows the user to select a report to 
+	generate. The generated reports will be echoed to the textbox where the user can
+	copy the contents if they wish.
+	
+	-------
+	Methods:
+	-------
+	
+	selectsample(event):
+		-Runs anw's set_activesheet method behind the scenes for a sample selected
+		 from the dropdown menu. Closes the openpyxl object right after the sample
+		 is selected. Echoes a label to the GUI indicating that the sample has been
+		 selected.
+		 
+	generate(event):
+		-Generates a report based on the user selection and echoes it to the textbox.
+	
+	anwExit():
+		-Returns the user to the main menu and simultaneously closes the openpyxl object
+		in case it wasn't closed. 
+		
+3.24	
+locatorgui: This module contains the code for the Soma Brain Area Locator service. The service
+----------- is defined in a class called Locator_GUI which inherits the Frame class from tkinter.
+            The Locator_GUI class takes parent and controller as arguments, which are described
+	    above.
+	    
+	    The main elements defined in this service are two dropdown menus, a button, a checkbox,
+	    a textbox, and an exit button. The first dropdown menu allows the user to select a 
+	    sample. The second dropdown menu allows the user to select a neuron tag from the 
+	    selected sample. The button allows the user to give the soma location(s) for what is 
+	    selected. The checkbox allows the user to return the soma locations as a list rather 
+	    than a table. The textbox is where all the locations are echoed.
+	    
+	-------
+	Methods:
+	-------	
+	
+	unlock_tagdropdown(event):
+		-Feeds the neuron tag dropdown menu with the available neurons in a sample once a 
+		 sample is selected from the upper dropdown menu. 
+	
+	returnloc():
+		-Echoes the soma location(s) for the selected items to the textbox.
+		
+3.25		
+resultmkrgui: This module contains the code for the Registration Result Folder Maker service. The
+------------- service is defined in a class called RegResultDir_GUI which inherits the Frame class
+              from tkinter. The RegResultDir_GUI class takes parent and controller as arguments, 
+	      which are described above. 
+	      
+	      The main elements defined in this service are two buttons, a textbox, and an exit
+	      button. The first button opens a file dialogue box within the registration folder
+	      for the user to select a registration sample folder. The second button allows the
+	      user to create a result directory for the selected registration sample. Messages are
+	      echoed to the textbox regarding the status of the result folder making process. 
+
+	-------
+	Methods:
+	-------	
+	
+	FileDialog():
+		-Opens a file dialogue box in the registration folder directory.
+		
+	make():
+		-Calls the copyto_results function from the mk_result_dir.py module to create 
+		 the result folder for the selected registration sample path.
+		 
+3.26		 
+mungui: This module contains the code for the Unfinished Neuron Mover folder. The service is defined
+------- in a class called MUN_GUI which inherits the Frame class from tkinter. The MUN_GUI class
+	takes parent and controller as arguments, which are described above.
+	
+	The main elements defined in this service are a dropdown menu, a button, a textbox, and an
+	exit button. The dropdown menu allows the user to select a sample from the Active Neuron
+	Worksheet and queue it for moving. The button below the dropdown menu allows the user to
+	move all of the unfinished neurons from that sample to the Unfinished Neurons directory.
+	Messages areechoed to the textbox regarding the status of the moving process. 
+
+	-------
+	Methods:
+	-------	
+	
+	move_now():
+		-Calls the copyto_unf function from the move_unf_neurons.py module to move the
+		unfinished neurons from the selected sample.
+	
+	MUNguiexit():
+		-Returns the user to the main menu and closes the openpyxl object for the
+		 Active Neuron Worksheet if it hasn't already been closed.
+
+3.27
+curationgui: Unlike the past GUI modules described in this documentation, this module contains the
+------------ code for two separate but related services. The first service is the Temporary Curation
+             Folder Maker, which is defined in a class called Curation_GUI and inherits the Frame
+	     class from tkinter. The other service is the Curation Helper, which is defined in a 
+	     class called Somacuration_GUI and also inherits the Frame class from tkinter. 
+    
+    3.271
+    Curation_GUI:
+	
+	The main elements defined in this service are the 'Select sample directory button', the 
+	'Make temporary curation folder' button, the 'Show missing files button', two textboxes, 
+	and an exit button. The 'Select sample directory button opens a file dialogue in the 
+	Finished Neurons folder and allows the user to select a sample folder in which to create
+	a temporary curation folder. The 'Make temporary curation folder' button calls the 
+	copyto_Temp_Curation function from the mk_temp_curation.py module to create a temporary 
+	curation folder within the selected sample folder. Status updates regarding this process 
+	are echoed to the textbox beneath the 'Make temporary curation folder button. The 
+	'Show missing files' button echoes a report of whatever files are missing within the sample 
+	folder to the textbox beneath it.
+		
+	
+	-------
+	Methods:
+	-------	
+	
+	FileDialoge():
+		-Opens a file dialogue box within the Finished Neurons Folder.
+	
+	make():
+		-Calls the copyto_Temp_Curation function to create the temporary curation folder.
+		
+	ShowMissing():
+		-Echoes the missing files to the second textbox.
+    
+    3.272
+    Somacuration_GUI:
+   	
+	This service is more complex than the ones previously defined so far in the GUI 
+	documentation. Therefore, I will list each element defined in this service as a bullet point 
+	before listing and describing the meothds. An in depth instruction on usage can be found in 
+	the User Instructions Microsoft Word document. The main elements defined in this service are:
+
+	    -Sample selection dropdown menu, which populates the Completed Neurons listbox column 
+	     on sample selection.
+	     
+	    -The queue all and unqueue all buttons, which handle moving tags to and from each 
+	     listbox column.
+	     
+	    -The 'Completed neurons' listbox column, which is populated on sample selection.
+	    
+	    -The 'Queued for review' listbox column, which is populated on tag selection from the 
+	     Completed Neurons column.
+	     
+	    -The review table (a tkinter treeview widget), which contains data entered by the user 
+	     during the Curation process.
+	     
+	    -The 'Create final tracing files' button, which runs the MLCuration.m script when 
+	     clicked.
+	     
+	    -The root review checkboxes, which help the user track the root review steps.
+	    
+	    -The 'Update selected' button, which updates a single review table row.
+	    
+	    -The 'Clear selected' button, which clears a single review table row.
+	    
+	    -The 'Save and export selected' button, which saves the entry for a single review 
+	     table row.
+	     
+	    -The 'Compartment from mesh' entrybox, which takes any text entry.
+	    
+	    -The 'Compartment from manual review' entrybox, which takes any text entry.
+	    
+	    -The 'Final Decision' entrybox, which only takes valid text entries from the popup 
+	     menu.
+	     
+	    -The 'Final Decision' search and complete popup menu.
+	    
+	    -The 'Additional comments' entrybox, which takes an text entry.
+	    
+	    -The 'Save and export all' button, which saves an exports all data in the review table 
+	     to an external dataframe.
+	     
+	    -The 'Clear all data in review' button, which clears all rows in the review table.
+	    
+	    -A warning popup window if user attempts to curate previously curated neurons.
+	    
+	    -A warning popup window if user attempts to enter invalid 'Final Decision' entry.
+	    
+	    -A popup window that shows a loading bar when the MLCuration.m script is running.
+	    
+	-------
+	Methods:
+	-------
+
+	insertcomplete(event):
+		-Inserts tags from a selected sample from the dropdown menu into the 'Completed
+		 Neurons' listbox column. The event argument is a mouseclick event on a tag
+		 from the dropdown menu.
+		 	
+	get_reviewTree_index(text):
+		-Retrieves the index integer for a neruon tag inserted into the review table.
+		 The text argument is the tag of the neuron whose index is to be retrieved.
+	
+	makeTree_fromSaved(nstring, selection):
+		-Enters data into the review table from the external dataframe containing
+		 previously saved data. The nstring argument is the full sample_tag string
+		 of the neuron to be entered. The selection argument is only the tag string
+		 of the neuron to be entered.
+		 
+	OnCSelect(event): 
+		-Transfers a neuron tag from the 'Completed Neurons' listbox column to the 
+		 'Queued for review' listbox column. For any tag selected from the 'Completed
+		 Neurons' column, its place in the column will be preserved and appear as a
+		 blank space. If a tag is unqued it will return to its place in the 'Completed
+		 Neurons' column. This way, the order of the neurons is always maintained. The
+		 event argument can either be a mouseclick event or a tuple consisting of a tag
+		 and its index number from consensuscomplete_List (retrieved via the anw class).
+	
+	OnSSelect(event):
+		-Transfers a neuron tag from the 'Queued for Review' listbox column back to the
+		 'Completed Neurons' listbox column. The event argument can either be a mouseclick
+		 event or a neuron tag string.
+		 
+	insertall(completelist):
+		-Runs the OnCSelect method for every neuron tag present in the 'Conmpleted Neurons'
+		 listbox column. The completelist argument is a list of neurons present in the
+		 listbox.
+	
+	uninsertall(selectedlist):
+		-Runs the OnSSelect method for every neuron tag present in the 'Queued for Review'
+		 listbox column. The selectedlist argument is a list of neurons present in the 
+		 listbox.
+	
+	createEntryFrame(event):
+		-Creates a frame for the data entry widgets for a selected neuron tag. If the entry
+		 frame for a selected neuron tag already exists, the frame is raised instead. The
+		 event argument can either be a mouseclick event or a neuron tag string. 
+		 
+	RRupdate(instance):
+		-Updates the user entries from the entry frame widgets into the review table. 
+		 Instance argument is the sample_tag combo string for the neuron that is being 
+		 entered. 
+	
+	RRClear(instance):
+		-Clears any entries that have been made into the review table. Instance argument 
+		 is the sample_tag combo string for the neuron that is being cleared.
+	
+	cleartree():
+		-Runs the RRClear method for every neuron tag that has data entered in the review
+		 table. 
+		 
+	save_to_df(*args):
+		-Saves all user entered data for the neuron that whose entry frame is currently 
+		 raised to an external dataframe. This method is called with the optional *args
+		 when the MLCuration.m script is run via the ML_DL_Tfunc method (described further
+		 below). The optional arguments are the soma compartmnet string output by the
+		 MLCuration.m string and the sample_tag combo string of the neuron being processed.
+		 This method will trigger one of three different save condtions:
+		 	1) If a neuron has been previously saved and has not been modified in the
+			   current user session, no changes are made to the dataframe.
+			2) If a neuron has been previously saved and was modified in the current 
+			   user session, all modified entries will be added to the dataframe and 
+			   all unmodified entries will remain unchanged.
+			3) If a neuron is newly added before or during the running of the MLCuration.m
+			   script, a new series for the neuron will be appended to the dataframe.
+	
+	exportFinalDecision(treeindex, tagonly, savename):
+		-Exports the user entry in the 'Final Decision' entrybox to the soma.txt file
+		 generated by the MLCuration.m script if the Final Decision entry does not 
+		 match the output of the script. This addtion to the soma.txt file will be
+		 appenended as a new line consisting of 'Curated compartment: brain area'. 
+		 If the user decides to delete the Final Decision entry or switch to an
+		 entry that matches the output of MLCuration.m, the 'Curated compartment'
+		 line will be removed. The treeindex argument is the index number of the 
+		 selected neuron from the review table, the tagonly argument is the tag
+		 string of the selected neuron, and the savename argument is the sample_tag
+		 combo string of the selected neuron.
+		 
+	save_all_qd():
+		-Runs the save_to_df method for every neuron present in the 'Queued for Review'
+		 listbox column. 
 	
 	
+		
 	
-
-
-
 		   
 
 
