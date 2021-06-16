@@ -3,7 +3,7 @@ import os
 from pathlib import PurePath
 filepath = PurePath(__file__)
 abspath = str(filepath.parent)
-appParentDir = abspath.replace(abspath[0:2], r'\\dm11\mousebrainmicro').replace(r'\GUI_Menu_Related\Release_1.0','')
+appParentDir = abspath.replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 sys.path.append(r"{}\Database_Related_GUI_Branch".format(appParentDir))
