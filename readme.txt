@@ -12,7 +12,7 @@ Contents:
 		2.26) MLDB_neuron_enter
 		2.27) MLDB_sample_enter
 		2.28) mk_result_dir
-3) GUI Documentation (in progress)
+3) GUI Documentation
 	3.1) Overview
 	3.2) Modules, in depth
 		3.21) main
