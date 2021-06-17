@@ -125,8 +125,12 @@ class Neuronposter:
             except KeyError:
                 print(f"Sample {self.sample} does not exist in the Neuron Broswer Database. Check that it has been entered correctly.")
 
-            #looking up the coordinates for the neuron to be posted    
-            coordinates = self.coordinateRetriever(tag)
+            #looking up the coordinates for the neuron to be posted
+            try:    
+                coordinates = self.coordinateRetriever(tag)
+            except KeyError:
+                coordinates = {'x': None, 'y': None, 'z': None}
+                print(f"Could not retrieve coordinates for {tag} because it was not found in the Active Neuron Worksheet,\nmake sure there are no typos in the Neuron Name.")
 
             #entering all the required variables
             variables = {
