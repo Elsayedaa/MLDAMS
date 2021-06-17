@@ -863,6 +863,7 @@ class Somacuration_GUI(Frame):
         self.exportFinalDecision(treeindex, tagonly, savename)
         self.curationlog.to_pickle(self.savefile)
         self.curationlog.to_csv(self.EOAsavefile)
+        self.EOAsavefile.close()
         
     ######################################################################################
     #  Method for exporting the final decision to the brain area text file of the neuron
