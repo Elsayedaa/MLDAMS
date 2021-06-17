@@ -24,6 +24,9 @@ Contents:
 		3.27) curationgui
 			3.271) Curation_GUI
 			3.272) Somacuration_GUI
+		3.28) databaseentrygui
+			3.281) DBSelect_GUI
+			3.282) Entry_GUI
 			
                                                                         
                                              1 
@@ -702,7 +705,7 @@ The GUI consists of 8 modules, all of which are in the GUI_Menu_Related folder. 
 quick overview of the modules:
 
 	-main.py: The controller module for the rest of the modules. Handles starting all 
-	 the othermodules in the app. Also handles starting and joining extra processes. 
+	 the other modules in the app. Also handles starting and joining extra processes. 
 	 Currently, no extra processes are started in the app but the capability to start 
 	 extra processes is there.
 
@@ -741,7 +744,7 @@ main: This module consists of the controller class for the app, MLDAMS, which in
 ----- the Tk class to create the main app window when the MLDAMS class is called. Upon calling
       the class, the base app window configurations are defined. This includes creating a 
       template frame which will be taken as an argument for all other services that are 
-      initialized. The template frame is saved as an instance variabled called self.mainframe. 
+      initialized. The template frame is saved as an instance variable called self.mainframe. 
       Then, the show_frame method (detailed in the methods section) is called on the StartPage 
       class to raise the main page of the app. 
 
@@ -763,10 +766,10 @@ main: This module consists of the controller class for the app, MLDAMS, which in
 		-When a new service class is initialized, it takes self.mainframe, self, *args
 		 and **kwargs as arguments.
 			-self.mainframe is the template frame for each service. In a service
-			 class, this argument is named 'parent'
+			 class, this argument is named 'parent'.
 			-self is the main class object itself, which allows the main object's
-			 methods to be called from other service class objects. In a service
-			 class, this argument is named 'controller'
+			 methods to be called from other service modules. In a service
+			 class, this argument is named 'controller'.
 			 
 	startproc(proc): 
 		-This method allows for the initialization of multiprocessing processes.
@@ -789,7 +792,7 @@ startpage: This module contains the code for the start menu page of the app. The
 	   No methods are defined in this class. 
 	   
 3.23
-awngui: This modules contains the code for the Neuron Worksheet Report Generator service. The
+awngui: This module contains the code for the Neuron Worksheet Report Generator service. The
 ------- The service is defined in a class called ANWparser_GUI which inherits the Frame class 
         from tkinter. The ANWparser_GUI class takes parent and controller as arguments, which
 	are described above. 
@@ -808,14 +811,17 @@ awngui: This modules contains the code for the Neuron Worksheet Report Generator
 		-Runs anw's set_activesheet method behind the scenes for a sample selected
 		 from the dropdown menu. Closes the openpyxl object right after the sample
 		 is selected. Echoes a label to the GUI indicating that the sample has been
-		 selected.
+		 selected. The event argument is a mouseclick event to a sample in the 
+		 samples dropdown menu.
 		 
 	generate(event):
 		-Generates a report based on the user selection and echoes it to the textbox.
+		 The event argument is a mouseclick event to a report in the report dropdown 
+		 menu.
 	
 	anwExit():
 		-Returns the user to the main menu and simultaneously closes the openpyxl object
-		in case it wasn't closed. 
+		 in case it wasn't closed. 
 		
 3.24	
 locatorgui: This module contains the code for the Soma Brain Area Locator service. The service
@@ -836,7 +842,8 @@ locatorgui: This module contains the code for the Soma Brain Area Locator servic
 	
 	unlock_tagdropdown(event):
 		-Feeds the neuron tag dropdown menu with the available neurons in a sample once a 
-		 sample is selected from the upper dropdown menu. 
+		 sample is selected from the upper dropdown menu. The event argument is a 
+		 mouseclick event to a sample in the samples dropdown menu.
 	
 	returnloc():
 		-Echoes the soma location(s) for the selected items to the textbox.
@@ -865,7 +872,7 @@ resultmkrgui: This module contains the code for the Registration Result Folder M
 		 the result folder for the selected registration sample path.
 		 
 3.26		 
-mungui: This module contains the code for the Unfinished Neuron Mover folder. The service is defined
+mungui: This module contains the code for the Unfinished Neuron Mover service. The service is defined
 ------- in a class called MUN_GUI which inherits the Frame class from tkinter. The MUN_GUI class
 	takes parent and controller as arguments, which are described above.
 	
@@ -873,7 +880,7 @@ mungui: This module contains the code for the Unfinished Neuron Mover folder. Th
 	exit button. The dropdown menu allows the user to select a sample from the Active Neuron
 	Worksheet and queue it for moving. The button below the dropdown menu allows the user to
 	move all of the unfinished neurons from that sample to the Unfinished Neurons directory.
-	Messages areechoed to the textbox regarding the status of the moving process. 
+	Messages are echoed to the textbox regarding the status of the moving process. 
 
 	-------
 	Methods:
@@ -881,7 +888,7 @@ mungui: This module contains the code for the Unfinished Neuron Mover folder. Th
 	
 	move_now():
 		-Calls the copyto_unf function from the move_unf_neurons.py module to move the
-		unfinished neurons from the selected sample.
+		 unfinished neurons from the selected sample.
 	
 	MUNguiexit():
 		-Returns the user to the main menu and closes the openpyxl object for the
@@ -899,13 +906,13 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	
 	The main elements defined in this service are the 'Select sample directory button', the 
 	'Make temporary curation folder' button, the 'Show missing files button', two textboxes, 
-	and an exit button. The 'Select sample directory button opens a file dialogue in the 
+	and an exit button. The 'Select sample directory' button opens a file dialogue in the 
 	Finished Neurons folder and allows the user to select a sample folder in which to create
 	a temporary curation folder. The 'Make temporary curation folder' button calls the 
 	copyto_Temp_Curation function from the mk_temp_curation.py module to create a temporary 
 	curation folder within the selected sample folder. Status updates regarding this process 
-	are echoed to the textbox beneath the 'Make temporary curation folder button. The 
-	'Show missing files' button echoes a report of whatever files are missing within the sample 
+	are echoed to the textbox beneath the 'Make temporary curation folder button. The 'Show 
+	missing files' button echoes a report of whatever files are missing within the sample 
 	folder to the textbox beneath it.
 		
 	
@@ -933,19 +940,20 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	    -Sample selection dropdown menu, which populates the Completed Neurons listbox column 
 	     on sample selection.
 	     
-	    -The queue all and unqueue all buttons, which handle moving tags to and from each 
+	    -The queue all and unqueue all buttons, which handle bulk moving tags to and from each 
 	     listbox column.
 	     
-	    -The 'Completed neurons' listbox column, which is populated on sample selection.
+	    -The 'Completed neurons' listbox column, which is populated on sample selection. 
 	    
 	    -The 'Queued for review' listbox column, which is populated on tag selection from the 
-	     Completed Neurons column.
+	     Completed Neurons column. Clicking a neuron tag in this column will also return it
+	     to the 'Completed neurons' column. 
 	     
 	    -The review table (a tkinter treeview widget), which contains data entered by the user 
 	     during the Curation process.
 	     
 	    -The 'Create final tracing files' button, which runs the MLCuration.m script when 
-	     clicked.
+	     clicked for all neurons in the 'Queued for review' column.
 	     
 	    -The root review checkboxes, which help the user track the root review steps.
 	    
@@ -961,20 +969,23 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	    -The 'Compartment from manual review' entrybox, which takes any text entry.
 	    
 	    -The 'Final Decision' entrybox, which only takes valid text entries from the popup 
-	     menu.
+	     menu that appears when the user starts typing in the entrybox.
 	     
-	    -The 'Final Decision' search and complete popup menu.
+	    -The 'Final Decision' search and complete popup menu which appears when the user
+	     starts typing in the 'Final Decision' entrybox.
 	    
-	    -The 'Additional comments' entrybox, which takes an text entry.
+	    -The 'Additional comments' entrybox, which takes any text entry.
 	    
 	    -The 'Save and export all' button, which saves an exports all data in the review table 
 	     to an external dataframe.
 	     
 	    -The 'Clear all data in review' button, which clears all rows in the review table.
+	     However, if the MLCuration.m script has been run and the 'Compartment from script'
+	     column is populated, it will not be cleared. 
 	    
 	    -A warning popup window if user attempts to curate previously curated neurons.
 	    
-	    -A warning popup window if user attempts to enter invalid 'Final Decision' entry.
+	    -A warning popup window if user attempts to enter an invalid 'Final Decision' entry.
 	    
 	    -A popup window that shows a loading bar when the MLCuration.m script is running.
 	    
@@ -984,12 +995,13 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 
 	insertcomplete(event):
 		-Inserts tags from a selected sample from the dropdown menu into the 'Completed
-		 Neurons' listbox column. The event argument is a mouseclick event on a tag
+		 Neurons' listbox column. The event argument is a mouseclick event on a sample
 		 from the dropdown menu.
 		 	
 	get_reviewTree_index(text):
-		-Retrieves the index integer for a neruon tag inserted into the review table.
-		 The text argument is the tag of the neuron whose index is to be retrieved.
+		-Retrieves the index integer for a neruon tag present in the review table.
+		 The text argument is the tag string of the neuron whose index is to be 
+		 retrieved.
 	
 	makeTree_fromSaved(nstring, selection):
 		-Enters data into the review table from the external dataframe containing
@@ -1001,10 +1013,11 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		-Transfers a neuron tag from the 'Completed Neurons' listbox column to the 
 		 'Queued for review' listbox column. For any tag selected from the 'Completed
 		 Neurons' column, its place in the column will be preserved and appear as a
-		 blank space. If a tag is unqued it will return to its place in the 'Completed
-		 Neurons' column. This way, the order of the neurons is always maintained. The
-		 event argument can either be a mouseclick event or a tuple consisting of a tag
-		 and its index number from consensuscomplete_List (retrieved via the anw class).
+		 blank space after selection. If a tag is unqued it will return to its place 
+		 in the 'Completed Neurons' column. This way, the order of the neurons is always 
+		 maintained in the 'Completed Neurons' column. The event argument can either be 
+		 a mouseclick event or a tuple consisting of a tag and its index number from 
+		 consensuscomplete_List (retrieved via the anw class).
 	
 	OnSSelect(event):
 		-Transfers a neuron tag from the 'Queued for Review' listbox column back to the
@@ -1032,25 +1045,26 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		 entered. 
 	
 	RRClear(instance):
-		-Clears any entries that have been made into the review table. Instance argument 
-		 is the sample_tag combo string for the neuron that is being cleared.
+		-Clears the existing entries (except 'Compartment from Script') for the selected 
+		 neuron in the review table. Instance argument is the sample_tag combo string for
+		 the neuron that is being cleared.
 	
 	cleartree():
 		-Runs the RRClear method for every neuron tag that has data entered in the review
 		 table. 
 		 
 	save_to_df(*args):
-		-Saves all user entered data for the neuron that whose entry frame is currently 
-		 raised to an external dataframe. This method is called with the optional *args
-		 when the MLCuration.m script is run via the ML_DL_Tfunc method (described further
-		 below). The optional arguments are the soma compartmnet string output by the
-		 MLCuration.m string and the sample_tag combo string of the neuron being processed.
-		 This method will trigger one of three different save condtions:
+		-Saves all user entered data for the currently selected neuron to an external 
+		 dataframe. This method is called with the optional *args when the MLCuration.m 
+		 script is run via the ML_DL_Tfunc method (described further below). The optional 
+		 arguments are the soma compartmnet string output by the MLCuration.m script and 
+		 the sample_tag combo string of the neuron being processed. This method will trigger 
+		 one of three different save condtions:
 		 	1) If a neuron has been previously saved and has not been modified in the
 			   current user session, no changes are made to the dataframe.
 			2) If a neuron has been previously saved and was modified in the current 
-			   user session, all modified entries will be added to the dataframe and 
-			   all unmodified entries will remain unchanged.
+			   user session, all modified entries will take the place of thier respective
+			   entries in the dataframe and all unmodified entries will remain unchanged.
 			3) If a neuron is newly added before or during the running of the MLCuration.m
 			   script, a new series for the neuron will be appended to the dataframe.
 	
@@ -1070,9 +1084,102 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		-Runs the save_to_df method for every neuron present in the 'Queued for Review'
 		 listbox column. 
 	
+	ML_DL_Tfunc(sample, includelist):
+		-Calls and runs the MLCuration.m script via the MATLAB enginge. After the script
+		 is finished running, the locator function from the somalocator module is run
+		 with the reload=True argument to retrieve the soma location output of the
+		 MLCuration.m script. The retrieved outputs are then entered into the review table
+		 and all neurons in the 'Queued for reivew' column are saved via the save_to_df 
+		 method. The sample argument is the string of the currently selected sample, and
+		 the includelist is a list of the tags in the 'Queued for review' column. These
+		 are the main arguments that go into the MLCuration.m script. 
 	
-		
+	runner(sample, includelist):
+		-Runs a loading popup window while the MLCuration.m script is running. The method
+		 does this by running a ttk.Progressbar and the ML_DL_Tfunc method in separate
+		 threads. The sample argument is the string of the currently selected sample, and
+		 the includelist is a list of the tags in the 'Queued for review' column. These 
+		 arguments are fed into the ML_DL_Tfunc method which is called within the runner
+		 method. 
+		 
+	runML():
+		-This method initializes the MATLAB engine and calls the runner method. If the user 
+		 attempts to run the MLCuration.m script on neurons that have already been run
+		 through the script, this method will also generate a popup window warning. If
+		 the user confirms to run the script by clicking 'Yes' on the popup window, the
+		 runner method will proceed to run. 
+		 
+	raiseNBMenu(event):
+		-This method raises a popup menu with valid entries for the 'Final Decision' 
+		 entrybox when the user starts typing in the entrybox. The number of entries
+		 is narrowed down to match whatever the user is typing. The event argument is
+		 a KeyRelease event.
+		 
+	popFinal(event):
+		-Popuplates the 'Final Decision' entrybox when the user selects an entry from the
+		 popup menu. The event argument is a mouseclick event to an entry in the popup
+		 menu. 
 	
-		   
+	NBmenu_offclick(event):
+		-Retracts the popup menu if the user clicks off the menu. The event argument is a
+		 mouseclick event to anywhere on the GUI.
+	
+	invalidDataWarning():
+		-Shows a warning popup window if the user attempts to bypass selecting an entry from
+		 the popup window and tries to enter a custom entry.
 
+3.28
+databaseentrygui: This module contains the code for the Database Sample & Neuron Entry service. Just
+----------------- like the curationgui module, this module also contains two classes. The first class
+                  defined in this module is DBSelect_GUI, which inherits the Frame class from tkinter.
+		  This class creates a frame for the user to select which database they want to make 
+		  entries to. The second class is called Entry_GUI and also inherits the Frame class
+		  from tkinter. This class creates a frame for the actual data entry portion of the
+		  service.
+		  
+    3.281
+    DBSelected_GUI:
+    	
+	The main elements defined in this class are two buttons for database selection and an exit
+	button. On the left is the button to run Sandbox database entry and on the right is the button
+	to run Production database entry. This is done by passing the url for the GraphQL instance of 
+	the selected database to the Entry_GUI class.
+	
+	No methods are defined in this class.
+    
+    3.282
+    Entry_GUI:
+        
+	The main elements defined in this class are a dropdown menu for sample selection, a button for
+	sample data entry, a dropdown menu for neuron tag selection, a button for single neuron data 
+	entry, a button to enter data for all the neurons in a selected sample, a textbox, a button to 
+	return to database selection, and an exit button. Status updates on the data entry process are
+	echoed to the textbox when the user selects any of the data entry options. 
 
+	-------
+	Methods:
+	-------	
+	
+	unlock_neurondropdown(event):
+		-Populates the neuron tag dropdown menu with the completed neurons from the sample 
+		 selected via the sampledropdown menu. The event argument is a mouseclick event to a 
+		 sample from the dropdown menu.
+		 
+	enterSamp():
+		-Initializes the MLDB_sample_enter class for the selected database GraphQL instance
+		 and calls the post_sample method for the selected sample. Enters the relevant
+		 data from the Imaged Samples Board to the Neruon Browser Sample Manager Database.
+	
+	enterNeruon():
+		-Initializes the Neruonpower class for the selected database GraphQL instance and the 
+		 selected sample from the dropdown menu. Calls the post_neuron method for the selected
+		 neuron. Enters the relevant data for the neuron to the Neruon Browser Sample Manager 
+		 Database.
+	
+	enterAllNeurons():
+		-Initializes the Neruonpower class for the selected database GraphQL instance and the 
+		 selected sample from the dropdown menu. Calls the post_ALL_neurons method for
+		 all the completed neurons in the selected sample. Enters the relevant data for all
+		 complete neurons to the Neruon Browser Sample Manager Database.
+	
+		 
