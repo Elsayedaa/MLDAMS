@@ -1,18 +1,18 @@
 #last update 6/08/2021, 5:16 pm *
 #known issues:
-    #Fixed: attempting to 'clear all' on a newly loaded sample that is not saved will produce a key error since not all of its entryframes have been generated
-    #Fixed: updating a single entry for a saved item, unqueuing it and requeuing it, will cause all entries except the updated one to be cleared
-    #Fixed: clear data for items in the review tree which have been previously saved is not preserved throughout user session after unqueue/requeue 
-    #Fixed: if a neuron in the review tree is selected and then the active sample is changed, the entry frame of the last selected neuron remains raised
-    #Fixed: welcome frame is likely to be unintentionally saved due to the above problem
-    #Fixed: If all neurons are removed from the queued column, the last raised frame remains raised, should address this to prevent entry errors
-    #Fixed: cannot run previously scripted neurons and non scripted neurons through the ML script at the same time because unscripted ones will enter the scripted condition too
-    #Fixed: Save condition 2 triggers a pandas caveat
-    #Fixed: Final decision entrybox popup menu doesn't always disappear when clicking away
-    #Fixed: neuron location data for the somalocator module doesn't update after ML script is run unless the program is restarted
-    #Fixed: Inserting all neurons should raised the data entry frame for the first neuron in the queued column, currently it does so with the first neuron in the sample list 
+    #1) Fixed: attempting to 'clear all' on a newly loaded sample that is not saved will produce a key error since not all of its entryframes have been generated
+    #2) Fixed: updating a single entry for a saved item, unqueuing it and requeuing it, will cause all entries except the updated one to be cleared
+    #3) Fixed: clear data for items in the review tree which have been previously saved is not preserved throughout user session after unqueue/requeue 
+    #4) Fixed: if a neuron in the review tree is selected and then the active sample is changed, the entry frame of the last selected neuron remains raised
+    #5) Fixed: welcome frame is likely to be unintentionally saved due to the above problem
+    #6) Fixed: If all neurons are removed from the queued column, the last raised frame remains raised, should address this to prevent entry errors
+    #7) Fixed: cannot run previously scripted neurons and non scripted neurons through the ML script at the same time because unscripted ones will enter the scripted condition too
+    #8) Fixed: Save condition 2 triggers a pandas caveat
+    #9) Fixed: Final decision entrybox popup menu doesn't always disappear when clicking away
+    #10) Fixed: neuron location data for the somalocator module doesn't update after ML script is run unless the program is restarted
+    #11) Fixed: Inserting all neurons should raised the data entry frame for the first neuron in the queued column, currently it does so with the first neuron in the sample list 
     #       regardless of insertion order
-    #Curated compartment line is not removed from the soma.txt file if 'Final Decision' is cleared
+    #12) Fixed: Curated compartment line is not removed from the soma.txt file if 'Final Decision' is cleared
 import time 
 import sys
 from pathlib import PurePath
@@ -114,6 +114,7 @@ class Somacuration_GUI(Frame):
 
         #the pandas dataframe where the entry data is saved
         self.savefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationtestlog.pkl"
+        self.EOAsavefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationlog.csv"
         self.curationlog = pd.read_pickle(self.savefile)
 
         self.NBmenu = Variable()
@@ -861,6 +862,7 @@ class Somacuration_GUI(Frame):
 
         self.exportFinalDecision(treeindex, tagonly, savename)
         self.curationlog.to_pickle(self.savefile)
+        self.curationlog.to_csv(self.EOAsavefile)
         
     ######################################################################################
     #  Method for exporting the final decision to the brain area text file of the neuron
@@ -895,7 +897,7 @@ class Somacuration_GUI(Frame):
                     somatxt.truncate(0)
                     somatxt.seek(0)
                     somatxt.write(scriptcomp.strip())
-                    
+
             elif scriptcomp.replace(',','') != finaldecision:
                 self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'No'
                 with open(neuronlocdir, 'w') as somatxt:
