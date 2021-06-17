@@ -12,6 +12,7 @@
     #Fixed: neuron location data for the somalocator module doesn't update after ML script is run unless the program is restarted
     #Fixed: Inserting all neurons should raised the data entry frame for the first neuron in the queued column, currently it does so with the first neuron in the sample list 
     #       regardless of insertion order
+    #Curated compartment line is not removed from the soma.txt file if 'Final Decision' is cleared
 import time 
 import sys
 from pathlib import PurePath
@@ -406,7 +407,7 @@ class Somacuration_GUI(Frame):
         self.createEntryFrame(selection)
 
     ######################################################################################
-    # Method for transferring neurons from 'queued fro review' back to 'complete'
+    # Method for transferring neurons from 'queued for review' back to 'complete'
     ######################################################################################
     def OnSSelect(self, event):
 
@@ -565,7 +566,7 @@ class Somacuration_GUI(Frame):
 
             #_________________________________________________________________________________________________________________
 
-            #Button to update root review value in the treeview
+            #Buttons to update the entries in the treeview
 
             updateRR = ttk.Button(rootreview, text = "Update selected", command = lambda: self.RRupdate(self.raised), state = framestate)
             updateRR.grid(row = 4, column = 0, columnspan = 2, sticky = "nsew")
@@ -879,15 +880,22 @@ class Somacuration_GUI(Frame):
         ):
             if scriptcomp != "" and finaldecision == "":
                 self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
+                with open(neuronlocdir, 'r+') as somatxt:
+                    contents = somatxt.read()
+                    somatxt.truncate(0)
+                    somatxt.seek(0)
+                    somatxt.write(scriptcomp.strip())
         else:
-            if scriptcomp.replace(',','') == finaldecision:
+            if (
+                scriptcomp.replace(',','') == finaldecision
+            ):
                 self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
                 with open(neuronlocdir, 'r+') as somatxt:
                     contents = somatxt.read()
-                    if 'Curated compartment:' in contents:
-                        somatxt.truncate(0)
-                        somatxt.seek(0)
-                        somatxt.write(scriptcomp.strip())
+                    somatxt.truncate(0)
+                    somatxt.seek(0)
+                    somatxt.write(scriptcomp.strip())
+                    
             elif scriptcomp.replace(',','') != finaldecision:
                 self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'No'
                 with open(neuronlocdir, 'w') as somatxt:
