@@ -11,8 +11,9 @@ import pandas as pd
 import pickle
 import csv
 
-pd.set_option('display.width', 1000)
+pd.set_option('display.width', 500)
 pd.options.display.max_rows = 999999
+pd.set_option('display.max_columns', 500)
 
 tcompdir = r"\\dm11\mousebrainmicro\tracing_complete"
 

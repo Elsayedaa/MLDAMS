@@ -89,33 +89,39 @@ class ANWparser_GUI(Frame):
         result = StringIO()
         sys.stdout = result
 
-        report = self.reportdropdown.get()
+        try:
+            report = self.reportdropdown.get()
+            
+            if report ==  "Second passes needed":
+                self.parser.secpassneeded()
+            if report == "Second passes done":
+                self.parser.secpassdone()
+            if report == "Dendrites needed":
+                self.parser.needsdendrites()
+            if report == "Splits needed":
+                self.parser.needssplit()
+            if report == "Consensus needed":
+                self.parser.needsconsensus()
+            if report == "Consensus complete":
+                self.parser.consensuscomplete()
+            if report == "Return coordinates":
+                self.parser.returncoords()
+            if report == "Percent complete":
+                self.parser.percentcomplete()
+            if report == "Full Report (all)":
+                self.parser.all()
 
-        if report ==  "Second passes needed":
-            self.parser.secpassneeded()
-        if report == "Second passes done":
-            self.parser.secpassdone()
-        if report == "Dendrites needed":
-            self.parser.needsdendrites()
-        if report == "Splits needed":
-            self.parser.needssplit()
-        if report == "Consensus needed":
-            self.parser.needsconsensus()
-        if report == "Consensus complete":
-            self.parser.consensuscomplete()
-        if report == "Return coordinates":
-            self.parser.returncoords()
-        if report == "Percent complete":
-            self.parser.percentcomplete()
-        if report == "Full Report (all)":
-            self.parser.all()
+            sys.stdout = old_stdout
+            result_string = result.getvalue()
+            
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, result_string)
 
-        sys.stdout = old_stdout
-        result_string = result.getvalue()
-        
-        if self.report.get(1.0,END) != "":
-            self.report.delete(1.0,END)
-        self.report.insert(END, result_string)
+        except AttributeError:
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, "Please select a sample first")
 
     def anwExit(self):
         try:
