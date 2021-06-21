@@ -1128,6 +1128,10 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		-Shows a warning popup window if the user attempts to bypass selecting an entry from
 		 the popup window and tries to enter a custom entry.
 
+	runRaiser(event):
+		-Deiconifies the loading bar window on main window focus and click. Event argument  
+                 can be either a '<Button-1>' event or a '<FocusIn>' event.
+
 3.28
 databaseentrygui: This module contains the code for the Database Sample & Neuron Entry service. Just
 ----------------- like the curationgui module, this module also contains two classes. The first class

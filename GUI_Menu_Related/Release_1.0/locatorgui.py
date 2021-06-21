@@ -72,10 +72,12 @@ class Locator_GUI(Frame):
 
         #no sample and no tag selected:
         if self.sample_selection.get() == "Select a sample:":
-            print("A sample must be selected first. Please use the dropdown menu to select a sample.")
-
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, "A sample must be selected first. Please use the dropdown menu to select a sample.")
+            
         #sample selected, no tag selected:
-        if self.tag_selection.get() == "Select a tag from the sample:":
+        if self.sample_selection.get() != "Select a sample:" and self.tag_selection.get() == "Select a tag from the sample:":
             print(f"Returning all soma locations in sample {self.sample_selection.get()}:\n")
             sample_locs = locator(self.sample_selection.get())
 

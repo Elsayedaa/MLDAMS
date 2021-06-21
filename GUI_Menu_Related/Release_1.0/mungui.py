@@ -48,18 +48,24 @@ class MUN_GUI(Frame):
         result = StringIO()
         sys.stdout = result
 
-        copyto_unf(self.parser, self.sampledropdown.get())
+        try:
+            copyto_unf(self.parser, self.sampledropdown.get())
 
-        sys.stdout = old_stdout
-        result_string = result.getvalue()
-        result_str = str(result_string)
-        result_str = result_str[result_str.index("\n")+1:]
+            sys.stdout = old_stdout
+            result_string = result.getvalue()
+            result_str = str(result_string)
+            result_str = result_str[result_str.index("\n")+1:]
 
-        self.parser.anw.close()
+            self.parser.anw.close()
 
-        if self.report.get(1.0,END) != "":
-            self.report.delete(1.0,END)
-        self.report.insert(END, result_str)
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, result_str)
+
+        except AttributeError:
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, "Please select a sample first.")
     
     def MUNguiExit(self):
         try:

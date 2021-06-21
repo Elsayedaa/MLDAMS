@@ -17,7 +17,7 @@ class StartPage(Frame):
         welcome_frame.place(relx=0.5, rely=0.5,anchor=CENTER)
         self.controller = controller
 
-        welcometext = """Welcome to the Mouselight Data Automation Management System\nA GUI for various quality of life automation scripts\n\nPlease select a service:\n"""
+        welcometext = """Welcome to the Mouselight Data Automation Management System\nA graphical user interface for annotator pipeline related automation scripts\n\nPlease select a service:\n"""
 
         welcome_label1 = Label(welcome_frame, text=welcometext, font = ('Arial', 14))
         welcome_label1.grid(column=0, row=0, columnspan=7)

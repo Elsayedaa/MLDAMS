@@ -13,6 +13,8 @@
     #11) Fixed: Inserting all neurons should raised the data entry frame for the first neuron in the queued column, currently it does so with the first neuron in the sample list 
     #       regardless of insertion order
     #12) Fixed: Curated compartment line is not removed from the soma.txt file if 'Final Decision' is cleared
+    #13) MLCuration.m runs even if no neurons are queued
+
 import time 
 import sys
 from pathlib import PurePath
@@ -944,6 +946,8 @@ class Somacuration_GUI(Frame):
             self.existing_entry_warning.destroy()
         except AttributeError:
             pass
+        self.controller.unbind('<FocusIn>')
+        self.controller.unbind('<Button-1>')
         self.imRunning.destroy()
         print("MLCuration script has finished running.")
 
@@ -952,7 +956,11 @@ class Somacuration_GUI(Frame):
     #Method that generates loading screen while the MATLAB script runs and calls the above method
     ######################################################################################
     def runner(self, sample,includelist):
+        self.existing_entry_warning.destroy()
         self.imRunning = Toplevel()
+        self.controller.bind('<FocusIn>', self.runRaiser)
+        self.controller.bind('<Button-1>', self.runRaiser)
+        self.imRunning.wm_overrideredirect(True) 
                 
         screen_width = self.controller.winfo_screenwidth()
         screen_height = self.controller.winfo_screenheight()
@@ -1110,4 +1118,5 @@ class Somacuration_GUI(Frame):
         warninglabel.pack(pady=10)
         exitbutton = ttk.Button(warningwindow, text = "Ok", command = warningwindow.destroy)
         exitbutton.pack()
-
+    def runRaiser(self,event):
+        self.imRunning.deiconify()

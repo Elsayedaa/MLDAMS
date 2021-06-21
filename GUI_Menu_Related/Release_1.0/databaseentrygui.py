@@ -1,3 +1,6 @@
+#Known issues:
+#Fixed: AttributeError when Enter all neurons is clicked without a sample selected
+
 import sys
 import os
 from pathlib import PurePath
@@ -103,43 +106,63 @@ class Entry_GUI(Frame):
         sys.stdout = result
 
         sPoster = MLDB_sample_enter(self.instance)
-        sPoster.post_sample(self.sample_selection.get())
 
-        sys.stdout = old_stdout
-        result_string = result.getvalue()
+        try:
+            sPoster.post_sample(self.sample_selection.get())
+            sys.stdout = old_stdout
+            result_string = result.getvalue()
 
-        if self.report.get(1.0,END) != "":
-            self.report.delete(1.0,END)
-        self.report.insert(END, result_string)
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, result_string)
+        except IndexError:
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, "Please select a sample first.")
 
     def enterNeuron(self):
         old_stdout = sys.stdout
         result = StringIO()
         sys.stdout = result
+        try:
+            nPoster = Neuronposter(self.sample_selection.get(), self.instance)
+            nPoster.post_neuron(self.completeneuron_selection.get())
 
-        nPoster = Neuronposter(self.sample_selection.get(), self.instance)
-        nPoster.post_neuron(self.completeneuron_selection.get())
+            sys.stdout = old_stdout
+            result_string = result.getvalue()
 
-        sys.stdout = old_stdout
-        result_string = result.getvalue()
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, result_string)
+            nPoster.parser.anw.close()
+        except Exception as e:
+            if "'int' object has no attribute 'values'" in e.args:
+                if self.report.get(1.0,END) != "":
+                    self.report.delete(1.0,END)
+                self.report.insert(END, "Please select a sample first.")
 
-        if self.report.get(1.0,END) != "":
-            self.report.delete(1.0,END)
-        self.report.insert(END, result_string)
-        nPoster.parser.anw.close()
-
+            if "'NoneType' object has no attribute 'replace'" in e.args:
+                if self.report.get(1.0,END) != "":
+                    self.report.delete(1.0,END)
+                self.report.insert(END, "Please select a neuron tag first.")
+            
     def enterAllNeurons(self):
         old_stdout = sys.stdout
         result = StringIO()
         sys.stdout = result
 
-        nPoster = Neuronposter(self.sample_selection.get(), self.instance)
-        nPoster.post_ALL_neurons()
+        try:
+            nPoster = Neuronposter(self.sample_selection.get(), self.instance)
+            nPoster.post_ALL_neurons()
 
-        sys.stdout = old_stdout
-        result_string = result.getvalue()
+            sys.stdout = old_stdout
+            result_string = result.getvalue()
 
-        if self.report.get(1.0,END) != "":
-            self.report.delete(1.0,END)
-        self.report.insert(END, result_string)
-        nPoster.parser.anw.close()
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, result_string)
+            nPoster.parser.anw.close()
+        except AttributeError:
+            if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+            self.report.insert(END, "Please select a sample first.")

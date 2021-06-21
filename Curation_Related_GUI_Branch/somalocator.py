@@ -51,6 +51,7 @@ def locCompiler():
                     locdic["sample"].append(x)
                     locdic["tag"].append(y)
                     locdic["somaloc"].append("Soma location cannot be found")
+                    locdic["script"].append("Soma location cannot be found")
     somalocdf = pd.DataFrame.from_dict(locdic)
     somalocdf.to_pickle(r'{}\cached_somaloc.pkl'.format(appParentDir))
     return somalocdf
