@@ -115,7 +115,7 @@ class Somacuration_GUI(Frame):
         label.grid(row = 0, columnspan = 3, sticky = "n")
 
         #the pandas dataframe where the entry data is saved
-        self.savefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationtestlog.pkl"
+        self.savefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationlog.pkl"
         self.EOAsavefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationlog.csv"
         self.curationlog = pd.read_pickle(self.savefile)
 
@@ -452,16 +452,18 @@ class Somacuration_GUI(Frame):
     #completelist is self.CompleteNeurons.get(0,END) argument
     def insertall(self, completelist):
         filled = list(np.where(np.array(completelist) != "")[0])
-
-        array = pd.Series(list(enumerate(completelist))).values[filled]
-        insert = np.vectorize(lambda x: self.OnCSelect(x), otypes = [tuple])
-        np.where(insert(array))
-  
-        if len(filled) == 0:
-            print("User attempted to insert all when there are no neurons to insert.")
-        else:
-            first = list(self.SelectedNeurons.get(0,END))[0]
-            self.createEntryFrame(first)
+        try:
+            array = pd.Series(list(enumerate(completelist))).values[filled]
+            insert = np.vectorize(lambda x: self.OnCSelect(x), otypes = [tuple])
+            np.where(insert(array))
+    
+            if len(filled) == 0:
+                print("User attempted to insert all when there are no neurons to insert.")
+            else:
+                first = list(self.SelectedNeurons.get(0,END))[0]
+                self.createEntryFrame(first)
+        except IndexError:
+            print("No completed neurons available in the sample to queue.")
 
     ######################################################################################
     #     Method for removing all tags into queue, called by the unqueue all button
@@ -1118,5 +1120,9 @@ class Somacuration_GUI(Frame):
         warninglabel.pack(pady=10)
         exitbutton = ttk.Button(warningwindow, text = "Ok", command = warningwindow.destroy)
         exitbutton.pack()
-    def runRaiser(self,event):
+
+######################################################################################
+#        Method that raises the loading screen on main window focus/click
+######################################################################################
+    def runRaiser(self, event):
         self.imRunning.deiconify()
