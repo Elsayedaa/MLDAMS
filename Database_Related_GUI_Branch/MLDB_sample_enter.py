@@ -28,10 +28,12 @@ class MLDB_sample_enter:
 
         #Initializing different variables for each database instance
         #-graphql server url:
-        if self.GQLInstance == 'http://localhost:9671/graphql':
+        if self.GQLInstance == 'sandbox':
+            self.sampleapi = "http://mouselight.int.janelia.org:10671/graphql"
             print("You are now accessing the SANDBOX database instance.")
 
-        if self.GQLInstance == 'http://mouselight.int.janelia.org:9671/graphql':
+        if self.GQLInstance == 'production':
+            self.sampleapi = "http://mouselight.int.janelia.org:9671/graphql"
             print("You are now accessing the PRODUCTION database instance.")
 
         self.make_strain_id_source = 'source'
@@ -81,7 +83,7 @@ class MLDB_sample_enter:
     #retreives the mouse strain IDs corresponding to the mouse strain Name for any database graphql instance link entered as an argument
     def strain_ids(self):
         with open(r"{}\{}\mousestrainIDs.json".format(self.folderpath, self.GQLDir)) as ms:
-            q = requests.post(self.GQLInstance, json={'query': ms.read()})
+            q = requests.post(self.sampleapi, json={'query': ms.read()})
             strains = q.json()
             return {dic['name']: dic['id'] for dic in strains['data']['mouseStrains']}
         
@@ -92,7 +94,7 @@ class MLDB_sample_enter:
             if mousestrainname in sandbox_strain_ids:
                 return sandbox_strain_ids[mousestrainname]
             else:
-                q = requests.post(self.GQLInstance, json={'query': make.read(), 'variables': {"name":mousestrainname}})
+                q = requests.post(self.sampleapi, json={'query': make.read(), 'variables': {"name":mousestrainname}})
                 response = q.json()
                 return response['data']['createMouseStrain'][self.make_strain_id_source]['id']
             
@@ -118,7 +120,7 @@ class MLDB_sample_enter:
     #retreives the virus IDs corresponding to the mouse strain Name for any database graphql instance link entered as an argument
     def virus_ids(self):
         with open(r"{}\{}\virusIDs.json".format(self.folderpath, self.GQLDir)) as v:
-            q = requests.post(self.GQLInstance, json={'query': v.read()})
+            q = requests.post(self.sampleapi, json={'query': v.read()})
             viruses = q.json()
             return {dic['name']: dic['id'] for dic in viruses['data']['injectionViruses']}
         
@@ -133,7 +135,7 @@ class MLDB_sample_enter:
             if viruses in virus_ids:
                 return virus_ids[viruses]
             else:
-                q = requests.post(self.GQLInstance, json={'query': make.read(), 'variables': {"name":viruses}})
+                q = requests.post(self.sampleapi, json={'query': make.read(), 'variables': {"name":viruses}})
                 response = q.json()
                 return response['data']['createInjectionVirus'][self.make_virus_id_source]['id']
             
@@ -155,7 +157,7 @@ class MLDB_sample_enter:
     #retreives the fluorophore IDs corresponding to the mouse strain Name for any database graphql instance link entered as an argument
     def fluor_ids(self):
         with open(r"{}\{}\fluorIDs.json".format(self.folderpath, self.GQLDir)) as f:
-            q = requests.post(self.GQLInstance, json={'query': f.read()})
+            q = requests.post(self.sampleapi, json={'query': f.read()})
             fluorophores = q.json()
             return {dic['name']: dic['id'] for dic in fluorophores['data']['fluorophores']}
         
@@ -167,7 +169,7 @@ class MLDB_sample_enter:
             if fluors in sandbox_fluor_ids:
                 return sandbox_fluor_ids[fluors]
             else:
-                q = requests.post(self.GQLInstance, json={'query': make.read(), 'variables': {"name":fluors}})
+                q = requests.post(self.sampleapi, json={'query': make.read(), 'variables': {"name":fluors}})
                 response = q.json()
                 return response['data']['createFluorophore'][self.make_fluor_id_source]['id']
 
@@ -200,7 +202,7 @@ class MLDB_sample_enter:
     #retreives the brain area IDs corresponding to brain areas in the Allen Atlas
     def brainarea_ids(self):
         with open(r"{}\{}\brainareaIDs.json".format(self.folderpath, self.GQLDir)) as ba:
-            q = requests.post(self.GQLInstance, json={'query': ba.read()})
+            q = requests.post(self.sampleapi, json={'query': ba.read()})
             brainareas = q.json()
             return {dic['name']: dic['id'] for dic in brainareas['data']['brainAreas']}
         
@@ -230,7 +232,7 @@ class MLDB_sample_enter:
                 "fluorID": self.make_fluor_id(sample)
             }   
             with open(r"{}\{}\makeinjection.json".format(self.folderpath, self.GQLDir)) as make:
-                q = requests.post(self.GQLInstance, json={'query': make.read(), 'variables': variables})
+                q = requests.post(self.sampleapi, json={'query': make.read(), 'variables': variables})
                 response = q.json()
                 return response
     #                                       Sample transform related functions:
@@ -271,7 +273,7 @@ class MLDB_sample_enter:
                     "path": self.get_transform_path(sample),
                     "active": True
                 }
-                q = requests.post(self.GQLInstance, json={'query': make.read(), 'variables': variables})
+                q = requests.post(self.sampleapi, json={'query': make.read(), 'variables': variables})
                 response = q.json()
                 return response
             
@@ -312,7 +314,7 @@ class MLDB_sample_enter:
                     }
                 }
                 try:
-                    r = requests.post(self.GQLInstance, json={'query': createsample.read(), 'variables': variables})
+                    r = requests.post(self.sampleapi, json={'query': createsample.read(), 'variables': variables})
                     samid = r.json()['data']['createSample'][self.createSample_source]['id']
                     print("Preliminary sample info posted successfully.")
                     mr = self.make_registration(sample, samid)
@@ -332,6 +334,6 @@ class MLDB_sample_enter:
             print("The Neuron Broswer Database is offline. Contact Patrick Edson if this is unexpected.")
         print()
 
-#Sandbox = MLDB_sample_enter('http://localhost:9671/graphql')
-#Production = MLDB_sample_enter('http://mouselight.int.janelia.org:9671/graphql')
+#Sandbox = MLDB_sample_enter('sandbox')
+#Production = MLDB_sample_enter('production')
 #Sandbox.post_sample("2020-09-15")

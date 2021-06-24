@@ -29,9 +29,9 @@ Contents:
 			3.282) Entry_GUI
 			
                                                                         
-                                             1 
-                                           About:
-_______________________________________________________________________________________________
+                                                  1 
+                                                About:
+_________________________________________________________________________________________________________
 The Mouselight Data Automation Management System is a GUI made to simplify calls to a collection 
 of Python scripts used to automate and aid with repetitive tasks in the Mouselight pipeline.
 
@@ -52,12 +52,12 @@ in the documentation section:
 	Registration Related Modules:
 	-mk_result_dir
 
-                                               2
-                                  Backend Module Documentation:
-_______________________________________________________________________________________________
+                                                  2
+                                    Backend Module Documentation:
+_________________________________________________________________________________________________________
 
-                                              2.1
-                           ::::::::::::::Dependencies::::::::::::::
+                                                 2.1
+                              ::::::::::::::Dependencies::::::::::::::
 
 
 
@@ -113,8 +113,8 @@ The MLDAMS also utilizes standard libraries including:
  GUI module if ever needed, but currently no functionalities rely on multiprocessing)
 
                                     
-                                              2.2
-                              :::::::::::::::Modules::::::::::::::
+                                                 2.2
+                                :::::::::::::::Modules::::::::::::::
 
 
  2.21
@@ -561,34 +561,32 @@ The MLDAMS also utilizes standard libraries including:
 			-Each branch points to a call made by the upstream method.
 		
 
-                                       post_sample
-					   |
-		               	           |
-                  _________________________|________________________
-                 /   |             |              |                 \
-                /    |             |              |                  \
-               /     |             |              |                   \
-              /      |             |              |                    \
-             /       |             |              |                     \
-            /        |             |              |              make_registration
-get_animal_id     get_tag    make_strain_id       |                      ^
-	                           ^              |                     / \
-				 /   \            |    get_transform_name   get_transform_path
-	                get_strain   strain_ids   |                                 |
-			                          |                                 |
-						  |                              get_tag
-	                                          |
-					          |
-						  |
-						  |
-                                            make_injection                                      
-                                           /       |      \                                            
-                                          /        |       \                                          
-                    make_injectionarea_ids  make_fluor_id   make_virus_id           
-                     /    \                        ^                /    \
-                    /      \                      / \              /      \
- get_injection_area   brainarea_ids     get_fluors  fluor_ids  virus_ids  get_injection_viruses
-															
+                                            post_sample
+					         |
+		               	                 |
+                         ________________________|________________________
+                        /  |             |              |                 \
+                       /   |             |              |                  \
+                      /    |             |              |                   \
+                     /     |             |              |                    \
+                    /      |             |              |                     \
+                   /       |             |              |              make_registration
+      get_animal_id     get_tag    make_strain_id       |                 /         \
+	                              /    \            |    get_transform_name   get_transform_path
+	                      get_strain   strain_ids   |                                 |
+			                                |                                 |
+			     		                |                              get_tag
+	                                                |
+					                |
+						        |
+						        |
+                                                  make_injection                                      
+                                                 /       |      \                                                                                        
+                                                /        |       \                                      
+                          make_injectionarea_ids  make_fluor_id   make_virus_id           
+                           /    \                        ^                /    \
+                          /      \                      / \              /      \
+        get_injection_area   brainarea_ids     get_fluors  fluor_ids  virus_ids  get_injection_viruses
 
  2.27
 -MLDB_neuron_enter: This module contains the class Neuronposter, which is used to automatically
@@ -692,11 +690,11 @@ get_animal_id     get_tag    make_strain_id       |                      ^
 		 registration. 
 
 
-                                           3
-                                   GUI Documentation:
-________________________________________________________________________________________________
-The GUI for MLDAMS is written using the tkinter library and has the same dependencies that are 
-mentioned in the backend module documentation.
+                                                  3
+                                          GUI Documentation:
+_________________________________________________________________________________________________________
+The GUI for MLDAMS is written using the tkinter library and has the same dependencies that are mentioned
+in the backend module documentation.
 
 3.1
 Overview:
@@ -736,8 +734,8 @@ quick overview of the modules:
 To get a better idea of how I organized the GUI code, refer to the top answer on this stackoverflow 
 thread: https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
                                          
-					 3.2
-                   :::::::::::::::Modules, in depth::::::::::::::
+					         3.2
+                          :::::::::::::::Modules, in depth::::::::::::::
 		   
 3.21		   
 main: This module consists of the controller class for the app, MLDAMS, which inherits
@@ -931,26 +929,28 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
     
     3.272
     Somacuration_GUI:
+
    	
 	This service is more complex than the ones previously defined so far in the GUI 
-	documentation. Therefore, I will list each element defined in this service as a bullet point 
-	before listing and describing the meothds. An in depth instruction on usage can be found in 
-	the User Instructions Microsoft Word document. The main elements defined in this service are:
+	documentation. Therefore, I will list each element defined in this service as a bullet 
+        point before listing and describing the meothds. An in depth instruction on usage can 
+        be found in the User Instructions Microsoft Word document. The main elements defined in 
+        this service are:
 
-	    -Sample selection dropdown menu, which populates the Completed Neurons listbox column 
-	     on sample selection.
+	    -Sample selection dropdown menu, which populates the Completed Neurons listbox 
+             column on sample selection.
 	     
-	    -The queue all and unqueue all buttons, which handle bulk moving tags to and from each 
-	     listbox column.
+	    -The queue all and unqueue all buttons, which handle bulk moving tags to and from 
+             each listbox column.
 	     
 	    -The 'Completed neurons' listbox column, which is populated on sample selection. 
 	    
-	    -The 'Queued for review' listbox column, which is populated on tag selection from the 
-	     Completed Neurons column. Clicking a neuron tag in this column will also return it
-	     to the 'Completed neurons' column. 
+	    -The 'Queued for review' listbox column, which is populated on tag selection from 
+             the Completed Neurons column. Clicking a neuron tag in this column will also return 
+             it to the 'Completed neurons' column. 
 	     
-	    -The review table (a tkinter treeview widget), which contains data entered by the user 
-	     during the Curation process.
+	    -The review table (a tkinter treeview widget), which contains data entered by the 
+             user during the Curation process.
 	     
 	    -The 'Create final tracing files' button, which runs the MLCuration.m script when 
 	     clicked for all neurons in the 'Queued for review' column.
@@ -965,7 +965,7 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	     table row.
 	     
 	    -The 'Compartment from mesh' entrybox, which takes any text entry.
-	    
+  
 	    -The 'Compartment from manual review' entrybox, which takes any text entry.
 	    
 	    -The 'Final Decision' entrybox, which only takes valid text entries from the popup 
@@ -976,8 +976,8 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	    
 	    -The 'Additional comments' entrybox, which takes any text entry.
 	    
-	    -The 'Save and export all' button, which saves an exports all data in the review table 
-	     to an external dataframe.
+	    -The 'Save and export all' button, which saves an exports all data in the review 
+             table to an external dataframe.
 	     
 	    -The 'Clear all data in review' button, which clears all rows in the review table.
 	     However, if the MLCuration.m script has been run and the 'Compartment from script'
@@ -992,7 +992,7 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	-------
 	Methods:
 	-------
-
+	  
 	insertcomplete(event):
 		-Inserts tags from a selected sample from the dropdown menu into the 'Completed
 		 Neurons' listbox column. The event argument is a mouseclick event on a sample
@@ -1018,27 +1018,28 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		 maintained in the 'Completed Neurons' column. The event argument can either be 
 		 a mouseclick event or a tuple consisting of a tag and its index number from 
 		 consensuscomplete_List (retrieved via the anw class).
-	
+
 	OnSSelect(event):
 		-Transfers a neuron tag from the 'Queued for Review' listbox column back to the
-		 'Completed Neurons' listbox column. The event argument can either be a mouseclick
-		 event or a neuron tag string.
+		 'Completed Neurons' listbox column. The event argument can either be a 
+                 mouseclick event or a neuron tag string.
 		 
 	insertall(completelist):
-		-Runs the OnCSelect method for every neuron tag present in the 'Conmpleted Neurons'
-		 listbox column. The completelist argument is a list of neurons present in the
-		 listbox.
+		-Runs the OnCSelect method for every neuron tag present in the 'Conmpleted 
+                 Neurons' listbox column. The completelist argument is a list of neurons present 
+                 in the listbox.
 	
 	uninsertall(selectedlist):
-		-Runs the OnSSelect method for every neuron tag present in the 'Queued for Review'
-		 listbox column. The selectedlist argument is a list of neurons present in the 
-		 listbox.
+		-Runs the OnSSelect method for every neuron tag present in the 'Queued for 
+                 Review' listbox column. The selectedlist argument is a list of neurons present 
+                 in the listbox.
 	
 	createEntryFrame(event):
-		-Creates a frame for the data entry widgets for a selected neuron tag. If the entry
-		 frame for a selected neuron tag already exists, the frame is raised instead. The
-		 event argument can either be a mouseclick event or a neuron tag string. 
-		 
+		-Creates a frame for the data entry widgets for a selected neuron tag. If the 
+                 entry frame for a selected neuron tag already exists, the frame is raised 
+                 instead. The event argument can either be a mouseclick event or a neuron tag 
+                 string. 
+
 	RRupdate(instance):
 		-Updates the user entries from the entry frame widgets into the review table. 
 		 Instance argument is the sample_tag combo string for the neuron that is being 
@@ -1052,21 +1053,23 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 	cleartree():
 		-Runs the RRClear method for every neuron tag that has data entered in the review
 		 table. 
-		 
+	 	 	 
 	save_to_df(*args):
 		-Saves all user entered data for the currently selected neuron to an external 
 		 dataframe. This method is called with the optional *args when the MLCuration.m 
-		 script is run via the ML_DL_Tfunc method (described further below). The optional 
-		 arguments are the soma compartmnet string output by the MLCuration.m script and 
-		 the sample_tag combo string of the neuron being processed. This method will trigger 
-		 one of three different save condtions:
-		 	1) If a neuron has been previously saved and has not been modified in the
-			   current user session, no changes are made to the dataframe.
+		 script is run via the ML_DL_Tfunc method (described further below). The 
+                 optional arguments are the soma compartmnet string output by the MLCuration.m 
+                 script and the sample_tag combo string of the neuron being processed. This 
+                 method will trigger one of three different save condtions:
+		 	1) If a neuron has been previously saved and has not been modified in 
+                           the current user session, no changes are made to the dataframe.
 			2) If a neuron has been previously saved and was modified in the current 
-			   user session, all modified entries will take the place of thier respective
-			   entries in the dataframe and all unmodified entries will remain unchanged.
-			3) If a neuron is newly added before or during the running of the MLCuration.m
-			   script, a new series for the neuron will be appended to the dataframe.
+			   user session, all modified entries will take the place of thier 
+                           respective entries in the dataframe and all unmodified entries will 
+                           remain unchanged.
+			3) If a neuron is newly added before or during the running of the 
+                           MLCuration.m script, a new series for the neuron will be appended 
+                           to the dataframe.
 	
 	exportFinalDecision(treeindex, tagonly, savename):
 		-Exports the user entry in the 'Final Decision' entrybox to the soma.txt file
@@ -1088,11 +1091,11 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		-Calls and runs the MLCuration.m script via the MATLAB enginge. After the script
 		 is finished running, the locator function from the somalocator module is run
 		 with the reload=True argument to retrieve the soma location output of the
-		 MLCuration.m script. The retrieved outputs are then entered into the review table
-		 and all neurons in the 'Queued for reivew' column are saved via the save_to_df 
-		 method. The sample argument is the string of the currently selected sample, and
-		 the includelist is a list of the tags in the 'Queued for review' column. These
-		 are the main arguments that go into the MLCuration.m script. 
+		 MLCuration.m script. The retrieved outputs are then entered into the review 
+                 table and all neurons in the 'Queued for reivew' column are saved via the 
+                 save_to_df method. The sample argument is the string of the currently selected 
+                 sample, and the includelist is a list of the tags in the 'Queued for review' 
+                 column. These are the main arguments that go into the MLCuration.m script. 
 	
 	runner(sample, includelist):
 		-Runs a loading popup window while the MLCuration.m script is running. The method
@@ -1101,89 +1104,92 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 		 the includelist is a list of the tags in the 'Queued for review' column. These 
 		 arguments are fed into the ML_DL_Tfunc method which is called within the runner
 		 method. 
-		 
+			 
 	runML():
-		-This method initializes the MATLAB engine and calls the runner method. If the user 
-		 attempts to run the MLCuration.m script on neurons that have already been run
-		 through the script, this method will also generate a popup window warning. If
-		 the user confirms to run the script by clicking 'Yes' on the popup window, the
-		 runner method will proceed to run. 
+		-This method initializes the MATLAB engine and calls the runner method. If the 
+                 user attempts to run the MLCuration.m script on neurons that have already been 
+                 run through the script, this method will also generate a popup window warning. 
+                 If the user confirms to run the script by clicking 'Yes' on the popup window, 
+                 the runner method will proceed to run. 
 		 
 	raiseNBMenu(event):
 		-This method raises a popup menu with valid entries for the 'Final Decision' 
 		 entrybox when the user starts typing in the entrybox. The number of entries
 		 is narrowed down to match whatever the user is typing. The event argument is
 		 a KeyRelease event.
-		 
+	 
 	popFinal(event):
-		-Popuplates the 'Final Decision' entrybox when the user selects an entry from the
-		 popup menu. The event argument is a mouseclick event to an entry in the popup
-		 menu. 
+		-Popuplates the 'Final Decision' entrybox when the user selects an entry from 
+                 the popup menu. The event argument is a mouseclick event to an entry in the 
+                 popup menu. 
 	
 	NBmenu_offclick(event):
-		-Retracts the popup menu if the user clicks off the menu. The event argument is a
-		 mouseclick event to anywhere on the GUI.
+		-Retracts the popup menu if the user clicks off the menu. The event argument is 
+                 a mouseclick event to anywhere on the GUI.
 	
 	invalidDataWarning():
-		-Shows a warning popup window if the user attempts to bypass selecting an entry from
-		 the popup window and tries to enter a custom entry.
+		-Shows a warning popup window if the user attempts to bypass selecting an entry 
+                 from the popup window and tries to enter a custom entry.
 
 	runRaiser(event):
-		-Deiconifies the loading bar window on main window focus and click. Event argument  
-                 can be either a '<Button-1>' event or a '<FocusIn>' event.
+		-Deiconifies the loading bar window on main window focus and click. Event 
+                 argument can be either a '<Button-1>' event or a '<FocusIn>' event.
 
 3.28
-databaseentrygui: This module contains the code for the Database Sample & Neuron Entry service. Just
------------------ like the curationgui module, this module also contains two classes. The first class
-                  defined in this module is DBSelect_GUI, which inherits the Frame class from tkinter.
-		  This class creates a frame for the user to select which database they want to make 
-		  entries to. The second class is called Entry_GUI and also inherits the Frame class
-		  from tkinter. This class creates a frame for the actual data entry portion of the
-		  service.
+databaseentrygui: This module contains the code for the Database Sample & Neuron Entry service. 
+                  Just like the curationgui module, this module also contains two classes. The 
+                  first class defined in this module is DBSelect_GUI, which inherits the Frame 
+                  class from tkinter. This class creates a frame for the user to select which 
+                  database they want to make entries to. The second class is called Entry_GUI 
+                  and also inherits the Frame class from tkinter. This class creates a frame for 
+                  the actual data entry portion of the service.
 		  
     3.281
     DBSelected_GUI:
-    	
+ 	
 	The main elements defined in this class are two buttons for database selection and an exit
-	button. On the left is the button to run Sandbox database entry and on the right is the button
-	to run Production database entry. This is done by passing the url for the GraphQL instance of 
-	the selected database to the Entry_GUI class.
+	button. On the left is the button to run Sandbox database entry and on the right is the 
+        button to run Production database entry. This is done by passing the url for the GraphQL 
+        instance of the selected database to the Entry_GUI class.
 	
 	No methods are defined in this class.
     
     3.282
     Entry_GUI:
-        
-	The main elements defined in this class are a dropdown menu for sample selection, a button for
-	sample data entry, a dropdown menu for neuron tag selection, a button for single neuron data 
-	entry, a button to enter data for all the neurons in a selected sample, a textbox, a button to 
-	return to database selection, and an exit button. Status updates on the data entry process are
-	echoed to the textbox when the user selects any of the data entry options. 
+         
+	The main elements defined in this class are a dropdown menu for sample selection, a 
+        button for sample data entry, a dropdown menu for neuron tag selection, a button for 
+        single neuron data entry, a button to enter data for all the neurons in a selected sample, 
+        a textbox, a button to return to database selection, and an exit button. Status updates 
+        on the data entry process are echoed to the textbox when the user selects any of the data 
+        entry options. 
 
 	-------
 	Methods:
 	-------	
-	
+
 	unlock_neurondropdown(event):
-		-Populates the neuron tag dropdown menu with the completed neurons from the sample 
-		 selected via the sampledropdown menu. The event argument is a mouseclick event to a 
-		 sample from the dropdown menu.
+		-Populates the neuron tag dropdown menu with the completed neurons from the 
+                 sample selected via the sampledropdown menu. The event argument is a mouseclick 
+                 event to a sample from the dropdown menu.
 		 
 	enterSamp():
-		-Initializes the MLDB_sample_enter class for the selected database GraphQL instance
-		 and calls the post_sample method for the selected sample. Enters the relevant
-		 data from the Imaged Samples Board to the Neruon Browser Sample Manager Database.
+		-Initializes the MLDB_sample_enter class for the selected database GraphQL 
+                 instance and calls the post_sample method for the selected sample. Enters the 
+                 relevant data from the Imaged Samples Board to the Neruon Browser Sample Manager 
+                 Database.
 	
 	enterNeruon():
-		-Initializes the Neruonpower class for the selected database GraphQL instance and the 
-		 selected sample from the dropdown menu. Calls the post_neuron method for the selected
-		 neuron. Enters the relevant data for the neuron to the Neruon Browser Sample Manager 
-		 Database.
+		-Initializes the Neruonpower class for the selected database GraphQL instance and 
+                 the selected sample from the dropdown menu. Calls the post_neuron method for the 
+                 selected neuron. Enters the relevant data for the neuron to the Neruon Browser 
+                 Sample Manager Database.
 	
 	enterAllNeurons():
-		-Initializes the Neruonpower class for the selected database GraphQL instance and the 
-		 selected sample from the dropdown menu. Calls the post_ALL_neurons method for
-		 all the completed neurons in the selected sample. Enters the relevant data for all
-		 complete neurons to the Neruon Browser Sample Manager Database.
+		-Initializes the Neruonpower class for the selected database GraphQL instance and 
+                 the selected sample from the dropdown menu. Calls the post_ALL_neurons method for
+		 all the completed neurons in the selected sample. Enters the relevant data for 
+                 all complete neurons to the Neruon Browser Sample Manager Database.
 	
 		 
+

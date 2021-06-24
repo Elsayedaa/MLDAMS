@@ -47,23 +47,24 @@ class anw:
         #running a loop to initialize the sample worksheet as a class variable
         active_sheet = 0
         if sample == ():
-            self.sample = input("Enter the sample you would like to parse.")
             while active_sheet == 0:
                 try:
+                    self.sample = input("Enter the sample you would like to parse.")
                     active_sheet = self.anw[self.sample]
+                    self.ws = pd.DataFrame(active_sheet.values)
+                    print(f"You are now accessing sample: {self.sample}")
                 except KeyError:
-                    print("That sample does not exist in the Active Neuron Worksheet. Please try again.")
-            self.ws = pd.DataFrame(active_sheet.values)
-            print(f"You are now accessing sample: {self.sample}")
+                    print("That sample does not exist in the Active Neuron Worksheet. Please try again.")          
         else:
-            self.sample = sample[0]
             try:
+                self.sample = sample[0]
                 active_sheet = self.anw[self.sample]
+                self.ws = pd.DataFrame(active_sheet.values)
+                print(f"You are now accessing sample: {self.sample}")  
             except KeyError:
                 print("That sample does not exist in the Active Neuron Worksheet. Please try again.")
-            self.ws = pd.DataFrame(active_sheet.values)
-            print(f"You are now accessing sample: {self.sample}\n")
-            
+                return
+
         #anw must be close because read_only mode uses lazy loading
         #self.anw.close() #closing is handled at the end of the GUI script     
         #editing the dataframe for ease of parsing

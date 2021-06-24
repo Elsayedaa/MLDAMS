@@ -7,7 +7,7 @@ appParentDir = abspath.replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 from tkinter import *
 from tkinter import ttk
-import anwgui, mungui, locatorgui, resultmkrgui, curationgui, databaseentrygui
+import anwgui, mungui, locatorgui, resultmkrgui, curationgui, databaseentrygui, helpgui
 
 
 class StartPage(Frame): 
@@ -88,6 +88,6 @@ class StartPage(Frame):
         helpsub = Menu(self.topmenu)
         self.topmenu.add_cascade(label = 'Help', menu = helpsub)
 
-        helpsub.add_command(label = 'Documentation')
-        helpsub.add_command(label = 'User instructions')
+        helpsub.add_command(label = 'Documentation', command = lambda: controller.show_frame(helpgui.Documentation))
+        helpsub.add_command(label = 'User instructions', command = lambda: controller.show_frame(helpgui.Uins))
         helpsub.add_command(label = 'Protocols') #needs 2 cascading menus, 'manual protocol' and 'automation assisted protocol'

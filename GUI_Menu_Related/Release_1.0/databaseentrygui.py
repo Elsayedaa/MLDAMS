@@ -28,10 +28,10 @@ class DBSelect_GUI(Frame):
         label = Label(self.mainframe, text = "Select a database.")
         label.grid(row = 0, columnspan = 2)
 
-        sandboxClk = ttk.Button(self.mainframe, text = "Sandbox database", command = lambda: controller.show_frame(Entry_GUI,"http://localhost:9671/graphql"))
+        sandboxClk = ttk.Button(self.mainframe, text = "Sandbox database", command = lambda: controller.show_frame(Entry_GUI,"sandbox"))
         sandboxClk.grid(row = 1, column = 0, sticky = E)
     
-        productionClk = ttk.Button(self.mainframe, text = "Production database", command = lambda: controller.show_frame(Entry_GUI,"http://mouselight.int.janelia.org:9671/graphql"))
+        productionClk = ttk.Button(self.mainframe, text = "Production database", command = lambda: controller.show_frame(Entry_GUI,"production"))
         productionClk.grid(row = 1, column = 1, sticky = W)
 
         exitButton = ttk.Button(self.mainframe, text = "Return to Main Menu", command = lambda: controller.show_frame(startpage.StartPage))

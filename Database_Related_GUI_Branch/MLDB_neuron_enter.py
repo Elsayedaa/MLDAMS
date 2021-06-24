@@ -1,4 +1,4 @@
-#Documentation added 5/6/2021
+#Uploader class started and new api urls used 6/23/2021
 
 #things that are different between the sandbox and production databases regarding the neuron poster:
 #-graphql server url
@@ -12,6 +12,7 @@ abspath = str(filepath.parent)
 appParentDir = abspath.replace(r'\Database_Related_GUI_Branch','')
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 import requests
+import numpy as np
 from ANWparser import anw
 from somalocator import locator
 import re
@@ -25,11 +26,13 @@ class Neuronposter:
 
         #Initializing different variables for each database instance
         #graphql server url:
-        if self.GraphQLInstance == "http://localhost:9671/graphql":
+        if self.GraphQLInstance == "sandbox":
+            self.sampleapi = "http://mouselight.int.janelia.org:10671/graphql"
             print("You are now accessing the SANDBOX database instance.")
             
         #Same structure as above for the production database    
-        if self.GraphQLInstance == "http://mouselight.int.janelia.org:9671/graphql":
+        if self.GraphQLInstance == "production":
+            self.sampleapi = "http://mouselight.int.janelia.org:9671/graphql"
             print("You are now accessing the PRODUCTION database instance.")
 
         self.GQLDir = r'prodv_queries&mutations'
@@ -46,7 +49,7 @@ class Neuronposter:
     #retrieves a dictionary of ids for Allen Atlas brain areas in the database by querying the database
     def brainarea_ids(self):
         with open(r"{}\{}\brainareaIDs.json".format(self.folderpath, self.GQLDir)) as ba:
-            q = requests.post(self.GraphQLInstance, json={'query': ba.read()})
+            q = requests.post(self.sampleapi, json={'query': ba.read()})
             brainareas = q.json()
             return {dic['name']: dic['id'] for dic in brainareas['data']['brainAreas']}
 
@@ -59,7 +62,7 @@ class Neuronposter:
     #is saved as the self.sampledata attribute defined above
     def sampledata(self, *samplestr):
         with open(r"{}\{}\sampledata.json".format(self.folderpath, self.GQLDir)) as data:
-            q = requests.post(self.GraphQLInstance, json={'query': data.read()})
+            q = requests.post(self.sampleapi, json={'query': data.read()})
             response = q.json()
             data = {}
             for sample in response["data"]["samples"]["items"]:
@@ -83,7 +86,7 @@ class Neuronposter:
         with open(r"{}\{}\idRetriever.json".format(self.folderpath, self.GQLDir)) as ids:
 
             #sends a query to the database for the IDs of all the neurons and compiles them into a list
-            q = requests.post(self.GraphQLInstance, json={'query': ids.read()})
+            q = requests.post(self.sampleapi, json={'query': ids.read()})
             resp = q.json()
             rlist = [i["idString"] for i in resp["data"]["neurons"]["items"]]
 
@@ -144,7 +147,7 @@ class Neuronposter:
             }
 
             #posting the neuron to the database
-            q = requests.post(self.GraphQLInstance, json={'query': addneuron.read(), 'variables': variables})
+            q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
             if q.json()['data']['createNeuron']['error'] == None:
                 print(f"Neuron {tag} posted successfully.\n")
             else:
@@ -171,8 +174,61 @@ class Neuronposter:
         except UnboundLocalError:
             pass
 
+class SWCUploader:
+    def __init__(self, sample, GraphQLInstance):
+        self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
+        self.GraphQLInstance = GraphQLInstance
+
+        #Initializing different variables for each database instance
+        #graphql server url:
+        if self.GraphQLInstance == "sandbox":
+            self.sampleapi = "http://mouselight.int.janelia.org:10671/graphql"
+            self.tracingapi = "http://mouselight.int.janelia.org:10651/graphql"
+            self.transformapi = "http://mouselight.int.janelia.org:10661/graphql"
+            print("You are now accessing the SANDBOX database instance.")
+            
+        #Same structure as above for the production database    
+        if self.GraphQLInstance == "production":
+            self.sampleapi = "http://mouselight.int.janelia.org:9671/graphql"
+            self.tracingapi = "http://mouselight.int.janelia.org:9651/graphql"
+            self.transformapi = "http://mouselight.int.janelia.org:9661/graphql"
+            print("You are now accessing the PRODUCTION database instance.")
+
+        self.GQLDir = r'prodv_queries&mutations'
+
+        self.sample = sample #sample name entered as a class arg
+        self.parser = anw() #parser object associated with the sample
+        self.parser.set_activesheet(self.sample)
+
+        self.tracedby = {}
+        pairer = np.vectorize(lambda n: self.tracedby.update({n:f"{self.parser.ws['Annotator'][n]}, {self.parser.ws['Annotator'][n+'x']}"}))
+        np.where(pairer(np.array(self.parser.consensuscompleteList)))
+
+        self.neuronids = {}
+        self.compile_neuron_ids()
+
+    def extract_neuron_id(self, array):
+        sample = array["injection"]['sample']
+        sampledate = datetime.datetime.fromtimestamp(sample["sampleDate"]/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
+        samplename = sampledate[:sampledate.index("T")]
+        tag = array["tag"]
+        neuronid = array["id"]
+        self.neuronids[f"{samplename}-{tag}"] = neuronid
+
+    def compile_neuron_ids(self):
+        with open(r"{}\{}\neuronids.json".format(self.folderpath, self.GQLDir)) as f:
+            q = requests.post(self.sampleapi, json={'query':f.read()})
+            q.json()
+        jsonarray = np.array(q.json()['data']["neurons"]["items"])
+        np_extract_neuron_id = np.vectorize(self.extract_neuron_id)
+        np.where(np_extract_neuron_id(jsonarray))
+
 ##########################################################################
 #example of a post to the sandbox database
-#nPoster = Neuronposter("2020-04-15","http://localhost:9671/graphql")
+#nPoster = Neuronposter("2019-09-06","sandbox")
+#nPoster.post_neuron("G-002")
 #nPoster.post_ALL_neurons()
+#uploader = SWCUploader("2020-04-15","sandbox")
+#print(uploader.neuronids)
+#print(uploader.tracedby)
 ##########################################################################
