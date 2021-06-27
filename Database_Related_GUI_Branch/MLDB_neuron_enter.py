@@ -12,15 +12,20 @@ abspath = str(filepath.parent)
 appParentDir = abspath.replace(r'\Database_Related_GUI_Branch','')
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 import requests
+import asyncio
+import logging
 import numpy as np
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
+from gql.transport.websockets import WebsocketsTransport
 from io import BytesIO
 from ANWparser import anw
 from somalocator import locator
 import re
 import os, os.path
 import datetime
+
+logging.basicConfig(level=logging.INFO)
 
 class Neuronposter:
     def __init__(self, sample, GraphQLInstance):
@@ -204,7 +209,7 @@ class SWCUploader:
         self.parser.set_activesheet(self.sample)
 
         self.tracedby = {}
-        pairer = np.vectorize(lambda n: self.tracedby.update({n:f"{self.parser.ws['Annotator'][n]}, {self.parser.ws['Annotator'][n+'x']}"}))
+        pairer = np.vectorize(lambda n: self.tracedby.update({n:f"{self.parser.ws['Annotator'][n]}, {self.parser.ws['Annotator'][n+'x']}"}), otypes=[str])
         np.where(pairer(np.array(self.parser.consensuscompleteList)))
 
         self.neuronids = {}
@@ -228,7 +233,7 @@ class SWCUploader:
             q = requests.post(self.sampleapi, json={'query':f.read()})
             q.json()
         jsonarray = np.array(q.json()['data']["neurons"]["items"])
-        np_extract_neuron_id = np.vectorize(self.extract_neuron_id)
+        np_extract_neuron_id = np.vectorize(self.extract_neuron_id, otypes=[dict])
         np.where(np_extract_neuron_id(jsonarray))
 
     def get_neuronFiles(self, tag):
@@ -238,7 +243,7 @@ class SWCUploader:
         dendritefile = open(dendritepath, 'rb')
         return {'axon': axonfile, 'dendrite': dendritefile}
 
-    def uploadNeuron(self, tag):
+    async def uploadNeuron(self, tag):
         axon_variables = {
             'annotator':self.tracedby[f"{self.sample}_{tag}"],
             'neuronid':self.neuronids[f"{self.sample}_{tag}"],
@@ -253,25 +258,40 @@ class SWCUploader:
         }
 
         transport = AIOHTTPTransport(url=self.tracingapi)
-        client = Client(transport=transport)
 
-        print('ping')
-        with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
-            q = gql(upload.read())
-            axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
-            dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
-            #axonq = requests.post(self.tracingapi, json={'query': upload.read(), 'variables': axon_variables})
-            #dendriteq = requests.post(self.tracingapi, json={'query': upload.read(), 'variables': dendrite_variables})
+        async with Client(
+            transport=transport, fetch_schema_from_transport=True,
+        ) as session:
+            with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
+                q = gql(upload.read())
+                try:
+                    axon_response = await session.execute(q, variable_values = axon_variables, upload_files = True)
+                    print(f"{tag} axon uploaded")
+                except asyncio.exceptions.TimeoutError:
+                    print(f"{tag} axon upload took longer than normal but was sucessful.")
+                    pass
+                try:
+                    dendrite_response = await session.execute(q, variable_values = dendrite_variables, upload_files = True)
+                    print(f"{tag} dendrite uploaded.")
+                except asyncio.exceptions.TimeoutError:
+                    print(f"{tag} upload took longer than normal but was sucessful.")
+                    pass
 
-        print(axon_response)
+    def uploadALLNeurons(self):
+        for neuron in self.parser.consensuscompleteList:
+            asyncio.run(self.uploadNeuron(neuron.split('_')[1]))
+        print(f"{self.sample} finished uploading.")
+
+
 ##########################################################################
 #example of a post to the sandbox database
 #nPoster = Neuronposter("2019-09-06","sandbox")
 #nPoster.post_neuron("G-002")
 #nPoster.post_ALL_neurons()
-#uploader = SWCUploader("2019-08-08","sandbox")
+uploader = SWCUploader("2019-10-04","sandbox")
+uploader.uploadALLNeurons()
 #print(uploader.get_neuronFiles("G-001"))
-#print(uploader.uploadNeuron("G-001"))
+#asyncio.run(uploader.uploadNeuron("G-001"))
 #print(uploader.uploadNeuron('G-005'))
 #print(uploader.structure_ids)
 #print(uploader.neuronids)

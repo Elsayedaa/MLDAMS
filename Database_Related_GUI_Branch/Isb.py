@@ -1,6 +1,6 @@
 #https://www.geeksforgeeks.org/scrape-tables-from-any-website-using-python/
 #Known issues:
-    #-"find_element_by_* commands are deprecated. Please use find_element() instead"
+    #Solved: "find_element_by_* commands are deprecated. Please use find_element() instead"
 import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -26,9 +26,13 @@ def isb(username, password):
 
     driver.get("http://wiki.int.janelia.org/wiki/pages/viewpage.action?spaceKey=ML&title=Imaged+Samples+Board")
 
-    u_bar = driver.find_element_by_id("os_username")
-    p_bar = driver.find_element_by_id("os_password")
-    login = driver.find_element_by_id("loginButton")
+    #u_bar = driver.find_element_by_id("os_username")
+    u_bar = driver.find_element(By.ID, "os_username")
+    #p_bar = driver.find_element_by_id("os_password")
+    p_bar = driver.find_element(By.ID, "os_password")
+    #login = driver.find_element_by_id("loginButton")
+    login = driver.find_element(By.ID, "loginButton")
+    
 
     u_bar.send_keys(username)
     p_bar.send_keys(password)
