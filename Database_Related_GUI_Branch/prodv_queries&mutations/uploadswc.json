@@ -1,0 +1,10 @@
+mutation upload($annotator:String, $neuronid: String, $structureid: String, $file: Upload) {
+  uploadSwc(annotator:$annotator, neuronId:$neuronid, structureId:$structureid, file:$file) {
+    tracing {
+      id
+    }
+    error {
+      message
+    }
+  }
+}
