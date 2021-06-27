@@ -61,7 +61,7 @@ y_cordinate = int((screen_height/2) - (window_height/2))
 app.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
 app.title("Mouselight Data Automation Management System")
 
-app.iconbitmap(r'\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\mlicon.ico')
+app.iconbitmap(r'{}\mlicon.ico'.format(appParentDir))
 
 if __name__ == "__main__":
     app.mainloop()

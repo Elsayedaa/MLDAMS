@@ -62,7 +62,7 @@ ________________________________________________________________________________
 
 
 The MLDAMS is written completely in Python 3 and as such, a working installation of Python 3 
-(Anaconda recommended) is needed to start the GUI app.
+is needed to start the GUI app.
 
 The curation helper also calls on the MATLAB engine to run MLCuration.m, a script which:
 	-Calls the Allen API to retrieve a likely brain area compartment encapsulating the 
@@ -78,20 +78,24 @@ It's advised to use this guide over the one provided by HHMI since the HHMI guid
 how to install version 2018b.
 The MLDAMS currently utilizes MATLAB version 2020b.
 
-The MLDAMS also relies on several 3rd party Python libraries, most of which are included in 
-a default installation of Anaconda. These libraries include:
+The MLDAMS also relies on several 3rd party Python libraries. These libraries include:
+-Matlab Engine API
 -openpyxl
 -pandas
 -numpy
 -requests
--Pillow (not included by default in Anaconda)
--html_table_parser (not inluded by default in Anaconda)
--selenium (not included by default in Anaconda)
+-gql
+-Pillow 
+-html-table-parser-python3
+-selenium 
 	-Google Chrome webdriver corresponding to the user's current version of Chrome is 
 	 also needed
 	-webdriver path variable is defined in the Isb module, line 13
 	-the default path is: 
 	 "\\dm11\mousebrainmicro\Google Chrome Webdriver\chromedriver.exe"
+
+You can create a virtual environment with the name mldamsenv which contains all necessary
+dependencies by running installdependencies.bat
 
 The MLDAMS also utilizes standard libraries including:
 -datetime
@@ -386,8 +390,8 @@ The MLDAMS also utilizes standard libraries including:
 	Initialization of the object takes one argument, the url of the GraphQL instance for 
 	Neuron Browser sample manager database. An MLDB_sample_enter object can be initialized 
 	as such (variable names are customizable, but conventional names are used below):
-		-Sandbox = MLDB_sample_enter('http://localhost:9671/graphql')
-		-Production = MLDB_sample_enter('http://mouselight.int.janelia.org:9671/graphql')
+		-Sandbox = MLDB_sample_enter('sandbox')
+		-Production = MLDB_sample_enter('production')
 
 	Initialization of the MLDB_sampler_enter object:
 		-initializes a dataframe of the imaged samples board via the isb() function 

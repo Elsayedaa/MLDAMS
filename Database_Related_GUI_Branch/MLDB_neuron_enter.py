@@ -13,6 +13,9 @@ appParentDir = abspath.replace(r'\Database_Related_GUI_Branch','')
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 import requests
 import numpy as np
+from gql import Client, gql
+from gql.transport.aiohttp import AIOHTTPTransport
+from io import BytesIO
 from ANWparser import anw
 from somalocator import locator
 import re
@@ -207,13 +210,18 @@ class SWCUploader:
         self.neuronids = {}
         self.compile_neuron_ids()
 
+        with open(r"{}\{}\tracingstructures.json".format(self.folderpath, self.GQLDir)) as f:
+            q = requests.post(self.tracingapi, json={'query':f.read()})
+            q.json()
+            self.structure_ids = {'axon':q.json()['data']['tracingStructures'][0]['id'], 'dendrite':q.json()['data']['tracingStructures'][1]['id']}
+
     def extract_neuron_id(self, array):
         sample = array["injection"]['sample']
         sampledate = datetime.datetime.fromtimestamp(sample["sampleDate"]/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
         samplename = sampledate[:sampledate.index("T")]
         tag = array["tag"]
         neuronid = array["id"]
-        self.neuronids[f"{samplename}-{tag}"] = neuronid
+        self.neuronids[f"{samplename}_{tag}"] = neuronid
 
     def compile_neuron_ids(self):
         with open(r"{}\{}\neuronids.json".format(self.folderpath, self.GQLDir)) as f:
@@ -223,12 +231,49 @@ class SWCUploader:
         np_extract_neuron_id = np.vectorize(self.extract_neuron_id)
         np.where(np_extract_neuron_id(jsonarray))
 
+    def get_neuronFiles(self, tag):
+        axonpath = r"\\dm11\mousebrainmicro\tracing_complete\{}\{}\consensus.swc".format(self.sample,tag)
+        dendritepath = r"\\dm11\mousebrainmicro\tracing_complete\{}\{}\dendrite.swc".format(self.sample,tag)
+        axonfile = open(axonpath, 'rb')
+        dendritefile = open(dendritepath, 'rb')
+        return {'axon': axonfile, 'dendrite': dendritefile}
+
+    def uploadNeuron(self, tag):
+        axon_variables = {
+            'annotator':self.tracedby[f"{self.sample}_{tag}"],
+            'neuronid':self.neuronids[f"{self.sample}_{tag}"],
+            'structureid':self.structure_ids['axon'],
+            'file':self.get_neuronFiles(tag)['axon']
+        }
+        dendrite_variables = {
+            'annotator':self.tracedby[f"{self.sample}_{tag}"],
+            'neuronid':self.neuronids[f"{self.sample}_{tag}"],
+            'structureid':self.structure_ids['dendrite'],
+            'file':self.get_neuronFiles(tag)['dendrite']
+        }
+
+        transport = AIOHTTPTransport(url=self.tracingapi)
+        client = Client(transport=transport)
+
+        print('ping')
+        with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
+            q = gql(upload.read())
+            axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
+            dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
+            #axonq = requests.post(self.tracingapi, json={'query': upload.read(), 'variables': axon_variables})
+            #dendriteq = requests.post(self.tracingapi, json={'query': upload.read(), 'variables': dendrite_variables})
+
+        print(axon_response)
 ##########################################################################
 #example of a post to the sandbox database
 #nPoster = Neuronposter("2019-09-06","sandbox")
 #nPoster.post_neuron("G-002")
 #nPoster.post_ALL_neurons()
-#uploader = SWCUploader("2020-04-15","sandbox")
+#uploader = SWCUploader("2019-08-08","sandbox")
+#print(uploader.get_neuronFiles("G-001"))
+#print(uploader.uploadNeuron("G-001"))
+#print(uploader.uploadNeuron('G-005'))
+#print(uploader.structure_ids)
 #print(uploader.neuronids)
 #print(uploader.tracedby)
 ##########################################################################

@@ -14,6 +14,7 @@
     #       regardless of insertion order
     #12) Fixed: Curated compartment line is not removed from the soma.txt file if 'Final Decision' is cleared
     #13) MLCuration.m runs even if no neurons are queued
+    #14) Matlab engine installation needs to be added to the installdependencies.bat file
 
 import time 
 import sys
@@ -115,8 +116,8 @@ class Somacuration_GUI(Frame):
         label.grid(row = 0, columnspan = 3, sticky = "n")
 
         #the pandas dataframe where the entry data is saved
-        self.savefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationlog.pkl"
-        self.EOAsavefile = r"\\dm11\mousebrainmicro\Mouselight Data Management\GUI_Branch\curationlog.csv"
+        self.savefile = r"{}\curationlog.pkl".format(appParentDir)
+        self.EOAsavefile = r"{}\curationlog.csv".format(appParentDir)
         self.curationlog = pd.read_pickle(self.savefile)
 
         self.NBmenu = Variable()

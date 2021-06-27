@@ -11,6 +11,7 @@ sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
 sys.path.append(r"{}\Database_Related_GUI_Branch".format(appParentDir))
 from tkinter import *
+from tkinter import ttk
 from io import StringIO
 from ANWparser import anw
 from MLDB_sample_enter import MLDB_sample_enter
