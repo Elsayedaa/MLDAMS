@@ -4,6 +4,8 @@
 import sys
 import os
 from pathlib import PurePath
+import asyncio
+import threading
 filepath = PurePath(__file__)
 abspath = str(filepath.parent)
 appParentDir = abspath.replace(r'\GUI_Menu_Related\Release_1.0','')
@@ -15,8 +17,21 @@ from tkinter import ttk
 from io import StringIO
 from ANWparser import anw
 from MLDB_sample_enter import MLDB_sample_enter
-from MLDB_neuron_enter import Neuronposter
+from MLDB_neuron_enter import Neuronposter, SWCUploader
 import startpage
+
+def stdout_capture_start():
+    old_stdout = sys.stdout
+    result = StringIO()
+    sys.stdout = result
+    return result, old_stdout
+
+def stdout_capture_stop(out):
+    result, old = out
+    sys.stdout = old
+    result_string = result.getvalue()
+    return result_string
+
 
 class DBSelect_GUI(Frame):
     def __init__(self, parent, controller): 
@@ -76,6 +91,13 @@ class Entry_GUI(Frame):
 
         enterallneurons = ttk.Button(bframe1, text = "Enter all neurons in selected sample", command = self.enterAllNeurons, width = 70)
         enterallneurons.grid(row=2, columnspan = 2)
+
+        uploadSelected = ttk.Button(bframe1, text = 'Upload selected neuron SWCs', command = self.upload_SWC, width = 70)
+        uploadSelected.grid(row = 3, columnspan = 2)
+
+        uploadAll = ttk.Button(bframe1, text = "Upload all sample neuron SWCs", width = 70, command = lambda: self.upload_SWC(uploadAll=True))
+        uploadAll.grid(row = 4, columnspan =2)
+
         ##########################################
 
         self.report = Text(self.mainframe, bg="white", height=30, width=120)
@@ -89,6 +111,11 @@ class Entry_GUI(Frame):
 
         exitButton = ttk.Button(bframe2, text = "Return to Main Menu", command = lambda: controller.show_frame(startpage.StartPage), width = 25)
         exitButton.grid(row = 0, column = 1)
+
+    def popreport(self, text):
+        if self.report.get(1.0,END) != "":
+                self.report.delete(1.0,END)
+        self.report.insert(END, text)
 
     def unlock_neurondropdown(self, event):
         print('activated')
@@ -167,3 +194,31 @@ class Entry_GUI(Frame):
             if self.report.get(1.0,END) != "":
                 self.report.delete(1.0,END)
             self.report.insert(END, "Please select a sample first.")
+
+    def upload_SWC(self, uploadAll = False):
+        out = stdout_capture_start()
+
+        if "Select an active sample:" in self.sample_selection.get():
+            self.popreport( "Please select a sample first.")
+            return
+        if "Select a completed neuron from the sample:" in self.completeneuron_selection.get():
+            if uploadAll == False:
+                self.popreport("Please select a neuron tag first.")
+                return
+        try:
+            uploader = SWCUploader(self.sample_selection.get(), self.instance)
+
+            if uploadAll == False:
+                asyncio.run(uploader.uploadNeuron(self.completeneuron_selection.get()))
+
+            if uploadAll == True:
+                for neuron in uploader.parser.consensuscompleteList:
+                    asyncio.run(uploader.uploadNeuron(neuron.split('_')[1]))
+
+            result_string = stdout_capture_stop(out)
+            self.popreport(result_string)
+            uploader.parser.anw.close()
+
+        except KeyError:
+            self.popreport("Sample or tag not found. Make sure sample and tag are posted to the database.")
+            uploader.parser.anw.close()

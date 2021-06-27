@@ -268,18 +268,17 @@ class SWCUploader:
                     axon_response = await session.execute(q, variable_values = axon_variables, upload_files = True)
                     print(f"{tag} axon uploaded")
                 except asyncio.exceptions.TimeoutError:
-                    print(f"{tag} axon upload took longer than normal but was sucessful.")
+                    print(f"{tag} axon uploaded.")
                     pass
                 try:
                     dendrite_response = await session.execute(q, variable_values = dendrite_variables, upload_files = True)
                     print(f"{tag} dendrite uploaded.")
                 except asyncio.exceptions.TimeoutError:
-                    print(f"{tag} upload took longer than normal but was sucessful.")
+                    print(f"{tag} dednrite uploaded.")
                     pass
 
     def uploadALLNeurons(self):
-        for neuron in self.parser.consensuscompleteList:
-            asyncio.run(self.uploadNeuron(neuron.split('_')[1]))
+        [asyncio.run(self.uploadNeuron(neuron.split('_')[1])) for neuron in self.parser.consensuscompleteList]
         print(f"{self.sample} finished uploading.")
 
 
@@ -288,8 +287,8 @@ class SWCUploader:
 #nPoster = Neuronposter("2019-09-06","sandbox")
 #nPoster.post_neuron("G-002")
 #nPoster.post_ALL_neurons()
-uploader = SWCUploader("2019-10-04","sandbox")
-uploader.uploadALLNeurons()
+#uploader = SWCUploader("2019-08-08","sandbox")
+#uploader.uploadALLNeurons()
 #print(uploader.get_neuronFiles("G-001"))
 #asyncio.run(uploader.uploadNeuron("G-001"))
 #print(uploader.uploadNeuron('G-005'))

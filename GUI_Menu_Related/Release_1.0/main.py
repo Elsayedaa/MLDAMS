@@ -11,12 +11,6 @@ from tkinter import *
 from PIL import ImageTk, Image
 import multiprocessing
 from startpage import StartPage
-#from anwgui import ANWparser_GUI
-#from mungui import MUN_GUI
-#from locatorgui import Locator_GUI
-#from resultmkrgui import RegResultDir_GUI
-#from curationgui import Curation_GUI
-#from databaseentrygui import DBSelect_GUI, Entry_GUI
 
 class MLDAMS(Tk): 
     def __init__(self, *args, **kwargs): 

@@ -61,8 +61,8 @@ ________________________________________________________________________________
 
 
 
-The MLDAMS is written completely in Python 3 and as such, a working installation of Python 3 
-is needed to start the GUI app.
+The MLDAMS is written completely in Python and requires any version of Python 3.8 for compatability
+with the Matlab engine api.
 
 The curation helper also calls on the MATLAB engine to run MLCuration.m, a script which:
 	-Calls the Allen API to retrieve a likely brain area compartment encapsulating the 
