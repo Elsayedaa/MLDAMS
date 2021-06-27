@@ -1,4 +1,6 @@
 #https://www.geeksforgeeks.org/scrape-tables-from-any-website-using-python/
+#Known issues:
+    #-"find_element_by_* commands are deprecated. Please use find_element() instead"
 import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
