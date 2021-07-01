@@ -1,3 +1,4 @@
+#no async
 #Known issues:
 #Fixed: AttributeError when Enter all neurons is clicked without a sample selected
 
@@ -24,10 +25,11 @@ def stdout_capture_start():
     old_stdout = sys.stdout
     result = StringIO()
     sys.stdout = result
-    return result, old_stdout
+    return [result, old_stdout]
 
 def stdout_capture_stop(out):
-    result, old = out
+    result = out[0]
+    old = out[1]
     sys.stdout = old
     result_string = result.getvalue()
     return result_string
@@ -92,10 +94,10 @@ class Entry_GUI(Frame):
         enterallneurons = ttk.Button(bframe1, text = "Enter all neurons in selected sample", command = self.enterAllNeurons, width = 70)
         enterallneurons.grid(row=2, columnspan = 2)
 
-        uploadSelected = ttk.Button(bframe1, text = 'Upload selected neuron SWCs', command = self.upload_SWC, width = 70)
+        uploadSelected = ttk.Button(bframe1, text = 'Upload selected neuron SWCs', command = self.upload_controller, width = 70)
         uploadSelected.grid(row = 3, columnspan = 2)
 
-        uploadAll = ttk.Button(bframe1, text = "Upload all sample neuron SWCs", width = 70, command = lambda: self.upload_SWC(uploadAll=True))
+        uploadAll = ttk.Button(bframe1, text = "Upload all sample neuron SWCs", width = 70, command = lambda: self.upload_controller(uploadAll=True))
         uploadAll.grid(row = 4, columnspan =2)
 
         ##########################################
@@ -195,8 +197,33 @@ class Entry_GUI(Frame):
                 self.report.delete(1.0,END)
             self.report.insert(END, "Please select a sample first.")
 
-    def upload_SWC(self, uploadAll = False):
+    def upload_caller(self, uploadAll):
         out = stdout_capture_start()
+            
+        try:
+            uploader = SWCUploader(self.sample_selection.get(), self.instance)
+
+            if uploadAll == False:
+                uploader.uploadNeuron(self.completeneuron_selection.get())
+
+            if uploadAll == True:
+                uploader.uploadALLNeurons()
+
+            result_string = stdout_capture_stop(out)
+            self.popreport(result_string)
+            uploader.parser.anw.close()
+            self.imRunning.destroy()
+            self.controller.unbind('<FocusIn>')
+            self.controller.unbind('<Button-1>')
+
+        except KeyError:
+            self.imRunning.destroy()
+            self.controller.unbind('<FocusIn>')
+            self.controller.unbind('<Button-1>')
+            self.popreport("Sample or tag not found. Make sure sample and tag are posted to the database.")
+            uploader.parser.anw.close()
+    
+    def upload_controller(self, uploadAll = False):
 
         if "Select an active sample:" in self.sample_selection.get():
             self.popreport( "Please select a sample first.")
@@ -205,20 +232,35 @@ class Entry_GUI(Frame):
             if uploadAll == False:
                 self.popreport("Please select a neuron tag first.")
                 return
-        try:
-            uploader = SWCUploader(self.sample_selection.get(), self.instance)
 
-            if uploadAll == False:
-                asyncio.run(uploader.uploadNeuron(self.completeneuron_selection.get()))
+        self.imRunning = Toplevel()
 
-            if uploadAll == True:
-                for neuron in uploader.parser.consensuscompleteList:
-                    asyncio.run(uploader.uploadNeuron(neuron.split('_')[1]))
+        self.controller.bind('<FocusIn>', self.runRaiser)
+        self.controller.bind('<Button-1>', self.runRaiser)
 
-            result_string = stdout_capture_stop(out)
-            self.popreport(result_string)
-            uploader.parser.anw.close()
+        self.imRunning.wm_overrideredirect(True) 
+                
+        screen_width = self.controller.winfo_screenwidth()
+        screen_height = self.controller.winfo_screenheight()
 
-        except KeyError:
-            self.popreport("Sample or tag not found. Make sure sample and tag are posted to the database.")
-            uploader.parser.anw.close()
+        window_height = 150
+        window_width = 350
+
+        x_cordinate = int((screen_width/2) - (window_width/2))
+        y_cordinate = int((screen_height/2) - (window_height/2))
+
+        self.imRunning.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
+
+        runninglabel = Label(self.imRunning, text = "Upload in progress...")
+        runninglabel.pack(pady = 20)
+
+        self.pbar = ttk.Progressbar(self.imRunning, orient = HORIZONTAL, length = 300, mode = 'determinate')
+        self.pbar.pack()
+
+        t1 = threading.Thread(target = self.pbar.start)
+        t1.start()
+        t2 = threading.Thread(target=self.upload_caller, args = (uploadAll,))
+        t2.start()
+
+    def runRaiser(self, event):
+        self.imRunning.deiconify()

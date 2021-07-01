@@ -1,3 +1,4 @@
+#No async
 #Uploader class started and new api urls used 6/23/2021
 
 #things that are different between the sandbox and production databases regarding the neuron poster:
@@ -243,7 +244,7 @@ class SWCUploader:
         dendritefile = open(dendritepath, 'rb')
         return {'axon': axonfile, 'dendrite': dendritefile}
 
-    async def uploadNeuron(self, tag):
+    def uploadNeuron(self, tag):
         axon_variables = {
             'annotator':self.tracedby[f"{self.sample}_{tag}"],
             'neuronid':self.neuronids[f"{self.sample}_{tag}"],
@@ -258,27 +259,29 @@ class SWCUploader:
         }
 
         transport = AIOHTTPTransport(url=self.tracingapi)
+        client = Client(transport=transport)
 
-        async with Client(
-            transport=transport, fetch_schema_from_transport=True,
-        ) as session:
-            with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
-                q = gql(upload.read())
-                try:
-                    axon_response = await session.execute(q, variable_values = axon_variables, upload_files = True)
-                    print(f"{tag} axon uploaded")
-                except asyncio.exceptions.TimeoutError:
-                    print(f"{tag} axon uploaded.")
-                    pass
-                try:
-                    dendrite_response = await session.execute(q, variable_values = dendrite_variables, upload_files = True)
-                    print(f"{tag} dendrite uploaded.")
-                except asyncio.exceptions.TimeoutError:
-                    print(f"{tag} dednrite uploaded.")
-                    pass
+        with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
+            q = gql(upload.read())
+            try:
+                axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
+                print(f"{tag} axon uploaded")
+            except asyncio.exceptions.TimeoutError:
+                print(f"{tag} axon uploaded.")
+                pass
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                print(f"Database server is down.")
+            try:
+                dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
+                print(f"{tag} dendrite uploaded.")
+            except asyncio.exceptions.TimeoutError:
+                print(f"{tag} dednrite uploaded.")
+                pass
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                print(f"Database server is down.")
 
     def uploadALLNeurons(self):
-        [asyncio.run(self.uploadNeuron(neuron.split('_')[1])) for neuron in self.parser.consensuscompleteList]
+        [self.uploadNeuron(neuron.split('_')[1]) for neuron in self.parser.consensuscompleteList]
         print(f"{self.sample} finished uploading.")
 
 
@@ -290,7 +293,7 @@ class SWCUploader:
 #uploader = SWCUploader("2019-08-08","sandbox")
 #uploader.uploadALLNeurons()
 #print(uploader.get_neuronFiles("G-001"))
-#asyncio.run(uploader.uploadNeuron("G-001"))
+#uploader.uploadNeuron("G-009")
 #print(uploader.uploadNeuron('G-005'))
 #print(uploader.structure_ids)
 #print(uploader.neuronids)

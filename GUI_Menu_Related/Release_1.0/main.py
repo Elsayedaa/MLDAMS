@@ -6,6 +6,7 @@ abspath = str(filepath.parent)
 appParentDir = abspath.replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 sys.path.append(r"{}\Curation_Related_GUI_Branch".format(appParentDir))
+import threading
 from ANWparser import anw
 from tkinter import *
 from PIL import ImageTk, Image
@@ -58,7 +59,9 @@ app.title("Mouselight Data Automation Management System")
 app.iconbitmap(r'{}\mlicon.ico'.format(appParentDir))
 
 if __name__ == "__main__":
-    app.mainloop()
+    mainthread = threading.Thread(app.mainloop())
+    mainthread.run()
+
 
 try: 
     app.parser.anw.close()
