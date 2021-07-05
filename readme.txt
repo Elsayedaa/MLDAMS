@@ -1,6 +1,7 @@
 Contents:
 --------------------------------------
 1) About section
+
 2) Backend Module Documentation
 	2.1) Dependencies
 	2.2) Modules
@@ -12,6 +13,7 @@ Contents:
 		2.26) MLDB_neuron_enter
 		2.27) MLDB_sample_enter
 		2.28) mk_result_dir
+
 3) GUI Documentation
 	3.1) Overview
 	3.2) Modules, in depth
@@ -19,14 +21,15 @@ Contents:
 		3.22) startpage
 		3.23) anwgui
 		3.24) locatorgui
-		3.25) resultmkrgui
-		3.26) mungui
+		3.25) displayrangegui
+		3.26) resultmkrgui
 		3.27) curationgui
 			3.271) Curation_GUI
 			3.272) Somacuration_GUI
 		3.28) databaseentrygui
 			3.281) DBSelect_GUI
 			3.282) Entry_GUI
+		3.29) mungui
 			
                                                                         
                                                   1 
@@ -387,9 +390,10 @@ The MLDAMS also utilizes standard libraries including:
 ------------------- automatically enter the data of samples into the Neuron Broswer 
                     sample manager database.
 
-	Initialization of the object takes one argument, the url of the GraphQL instance for 
-	Neuron Browser sample manager database. An MLDB_sample_enter object can be initialized 
-	as such (variable names are customizable, but conventional names are used below):
+	Initialization of the object takes one argument, a string representing the GraphQL instance the 
+        the user is accessing. An MLDB_sample_enter object can be initialized as such (variable names 
+        are customizable, but conventional names are used below):
+
 		-Sandbox = MLDB_sample_enter('sandbox')
 		-Production = MLDB_sample_enter('production')
 
@@ -406,8 +410,8 @@ The MLDAMS also utilizes standard libraries including:
 			-password as the second line
 		-saves the parent directory of the folder containing the required graphql queries 
 		 and mutations in the instance variable named self.folderpath
-		-saves the url of the graphql instance in the instance variable named 
-		 self.GQLInstance
+		-initializes the url of sample manager api for the chosen graphql instance 
+		 in the instance variable named self.sampleapi
 		-saves the name of the folder containing the required graphql query and mutation 
 		 jsons in the instance variable named self.GQLDir
 		-saves the keys used to access required values of certain graphql mutation 
@@ -593,26 +597,31 @@ The MLDAMS also utilizes standard libraries including:
         get_injection_area   brainarea_ids     get_fluors  fluor_ids  virus_ids  get_injection_viruses
 
  2.27
--MLDB_neuron_enter: This module contains the class Neuronposter, which is used to automatically
-------------------- enter the data of neurons into the Neuron Broswer sample manager database.
+-MLDB_neuron_enter: This module contains the code for two separate but related services. The first is the
+------------------- class Neuronposter, which is used to automatically enter the data of neurons into 
+                    the Neuron Broswer sample manager database. The other is the class SWCUploader, which
+                    helps the user upload the swc files associated with the entered neurons into the 
+                    Neuron Browser Database. 
+    2.271
+    Neuronposter:
 
+	Initialization of the object takes two argumensts, a string representing the name of the sample 
+        the user wants to parse and a string representing the GraphQL instance the the user is accessing.
+	An Neuronbroswer object can be initialized as such (variable names are customizable, but 
+	conventional names are used below):
 
-
-	Initialization of the object takes two argumenst, the name of the sample and url of 
-	the GraphQL instance for Neuron Browser sample manager database.An Neuronbroswer object 
-	can be initialized as such (variable names are customizable, 
-	but conventional names are used below):
-		-nPoster = MLDB_sample_enter('2020-11-26', graphqlurl)
+		-sandbox_poster = MLDB_sample_enter('2020-11-26', 'sandbox')
+		-production_poster = MLDB_sample_enter('2020-11-26', 'production')
 	
 	Initialization of the Neuronposter object:
 		-saves the parent directory of the folder containing the required graphql 
 		 queries and mutations in the instance variable named self.folderpath
-		-saves the url of the graphql instance in the instance variable 
-		 named self.GQLInstance
+		-initializes the url of sample manager api for the chosen graphql instance 
+		 in the instance variable named self.sampleapi
 		-saves the name of the folder containing the required graphql query and 
 		 mutation jsons in the instance variable named self.GQLDir
-		-saves the name of the sample entered as an argument when creating the 
-		 class in the instance variable named self.sample
+		-saves the name of the sample entered as an argument in the instance variable 
+		 named self.sample
 		-saves an instance of the anw object in the instance variable 
 		 named self.parser
 		-sets the active sheet for the anw object via self.parser.set_activesheet()
@@ -681,6 +690,80 @@ The MLDAMS also utilizes standard libraries including:
 		-This method is the main reason why brainarea_ids and sampledata outputs are 
 		 cached as an instance variables. Without caching, this method runs many 
 		 times slower.
+
+    2.272
+    SWCUploader:
+
+	Just like the Neuronposter class,  SWCUploader also takes same two arguments, a string 
+	representing the name of the sample the user wants to parse and a string representing 
+	the GraphQL instance the the user is accessing. An SWCUploader object can be initialized 
+	as such (variable names are customizable, but conventional names are used below):
+		-sandbox_uploader = SWCUploader('2020-11-26', 'sandbox')
+		-production_uploader = SWCUploader('2020-11-26', 'production')
+
+	Initialization of the SWCUploader object:
+		-saves the parent directory of the folder containing the required graphql 
+		 queries and mutations in the instance variable named self.folderpath
+		-initializes the urls of the two apis that are utilized for the upload mutation
+		 for the chosen graphql instance and saves them into instance variables:
+			-self.sampleapi
+			-self.tracingapi
+		-saves the name of the folder containing the required graphql query and 
+		 mutation jsons in the instance variable named self.GQLDir
+		-saves the name of the sample entered as an argument in the instance variable 
+		 named self.sample
+		-saves an instance of the anw object in the instance variable named self.parser
+		-sets the active sheet for the anw object via self.parser.set_activesheet()
+		-creates a lookup dictionary called self.tracedby which contains the first 
+		 names of the annotators who traced each complete neuron in the initialized
+		 sample. Keys are the sample_tag strings of each complete neuron in the sample
+ 		 and values are strings containing the names of each tracer. The dictionary 
+		 is populated in the class' __init__ function. 
+		-initializes the a lookup dictionary called self.neuronids which has the
+		 database neuron container ids (the placeholders that are posted with the
+		 Neuronposter class). Keys are the sample_tag strings of each neuron container
+		 available in the database and values are strings of thier database ids. The
+		 dictionary is populated via a method called self.compile_neuron_ids() which 
+		 called within the class' __init__ function. 
+		-creates a lookup dictionary called self.structure_ids which contains the
+		 database ids used to denote tracing structures (axons vs dendrites). The 
+		 keys are "axon" and "dendrite" and the values are their corresponding
+		 database ids. The dictionary is populated via the return of a graphql query
+		 made in the class' __init__ function. 
+
+	-------
+	Methods:
+	-------
+	
+	extract_neuron_id(array):
+		-Extracts the database id of a single neuron container from the the response
+		 json of the relevant database graphql query. Each response object from
+		 a database graphql query typically takes the structure: 
+		 {"data":{"neurons":{"items":{Further nested relevant data}}}. The array 
+		 argument must be the nested json value at the "items" key cast as a np.array.
+		 After the id is extracted it is stored as a value in the self.neuronid lookup
+		 dictionary with its corresponding sample_tag string as a key.
+
+	compile_neuron_ids():
+		-Iterates through all the jsons values nested in the "items" key of the graphql
+		 response jsons and calls extract_neuron_id() for each one. 
+
+	get_neuronFiles(tag):
+		-Returns a lookup dictionary with the axon and dendrite swc binaries associated with
+		 the self.sample attibute and tag argument as values. Keys are "axon" for the axon swc
+		 and "dendrite" for the dendrite swc. 
+
+	uploadNeuron(tag):
+		-Uploads a neuron's axon and dendrite swcs to the associated neuron container in the 
+		 database. Utilizes the gql library to send the upload mutation rather than the 
+		 requests library as usual. An example mutation using this library is documented
+		 here: https://gql.readthedocs.io/en/v3.0.0a6/usage/file_upload.html. Swc files 
+		 are uploaded to the neuron container which is associated with the self.sample 
+		 attribute and tag argument. 
+
+	uploadALLNeurons():
+		-Runs the uploadNeuron() method for each neuron returned by anw.consensuscompleteList
+
 
  2.28
 -mk_result_dir: Yet another module that contains just one fuction. This function is used to 
@@ -849,8 +932,53 @@ locatorgui: This module contains the code for the Soma Brain Area Locator servic
 	
 	returnloc():
 		-Echoes the soma location(s) for the selected items to the textbox.
-		
-3.25		
+
+3.25
+displayrangegui: This module contains the code for the Registration Display Settings Record service.
+---------------- The service is defined in a class called displayRangeTree which inherits the Frame
+                 class from tkinter. The displayRangeTree class takes parent and controller as 
+                 arguments, which are described above. 
+
+                 The main elements defined in this service are a treeview widget which contains the
+                 display range record, three entry boxes to enter the sample name, display minimum,
+                 and display maximum respectively, a button to add a new row, a button to update a
+                 selected row, a button to delete a selected row, and a button to return to main
+                 menu. When the class is initialized, the values from the display settings json file
+		 at "\\dm11\mousebrainmicro\registration\Database\displaySettings.json" is loaded into
+		 the treeview. Display range values are copyable from the treeview view a left mouse 
+		 button click. When a user clicks a display range value, a small Toplevel window appears
+                 next to the value for one second with the message "copied". 
+
+	-------
+	Methods:
+	-------	
+	
+	add_row():
+		-Adds a new row to the display settings record treeview. Also adds a a new dictionary
+		 to the "Samples" list that is in displaySettings.json and saves it. 
+
+	update_row():
+		-Updates the currently selected row in the display settings record treeview. Also
+		 updates the corresponding dictionary in the "Samples" list within the 
+		 displaySettings.json and saves it.
+
+	delete_row():
+		-Deletes the currently selected row in the display settings record treeview. Also
+		 delets the corresponding dictionary in the "Samples" list within the
+		 displaySettings.json and saves it.
+	
+	get_clicked_index(event):
+		-Gets the row index of the selected row in the display settings record treeview. The
+		 event argument is a mouseclick event. Passes the argument to the copier() method.
+
+	copier(event):
+		-If a display range value is clicked with the left mouse button, this method copies 
+		 the value to the user's clipboard. The event argument is the same mouseclick that
+		 is passed as an argument in get_clicked_index.	
+	
+	
+                 		
+3.26		
 resultmkrgui: This module contains the code for the Registration Result Folder Maker service. The
 ------------- service is defined in a class called RegResultDir_GUI which inherits the Frame class
               from tkinter. The RegResultDir_GUI class takes parent and controller as arguments, 
@@ -873,35 +1001,14 @@ resultmkrgui: This module contains the code for the Registration Result Folder M
 		-Calls the copyto_results function from the mk_result_dir.py module to create 
 		 the result folder for the selected registration sample path.
 		 
-3.26		 
-mungui: This module contains the code for the Unfinished Neuron Mover service. The service is defined
-------- in a class called MUN_GUI which inherits the Frame class from tkinter. The MUN_GUI class
-	takes parent and controller as arguments, which are described above.
-	
-	The main elements defined in this service are a dropdown menu, a button, a textbox, and an
-	exit button. The dropdown menu allows the user to select a sample from the Active Neuron
-	Worksheet and queue it for moving. The button below the dropdown menu allows the user to
-	move all of the unfinished neurons from that sample to the Unfinished Neurons directory.
-	Messages are echoed to the textbox regarding the status of the moving process. 
 
-	-------
-	Methods:
-	-------	
-	
-	move_now():
-		-Calls the copyto_unf function from the move_unf_neurons.py module to move the
-		 unfinished neurons from the selected sample.
-	
-	MUNguiexit():
-		-Returns the user to the main menu and closes the openpyxl object for the
-		 Active Neuron Worksheet if it hasn't already been closed.
 
 3.27
-curationgui: Unlike the past GUI modules described in this documentation, this module contains the
------------- code for two separate but related services. The first service is the Temporary Curation
-             Folder Maker, which is defined in a class called Curation_GUI and inherits the Frame
-	     class from tkinter. The other service is the Curation Helper, which is defined in a 
-	     class called Somacuration_GUI and also inherits the Frame class from tkinter. 
+curationgui: This module contains the code for two separate but related services. The first service is 
+------------ the Temporary Curation Folder Maker, which is defined in a class called Curation_GUI and 
+             inherits the Frame class from tkinter. The other service is the Curation Helper, which 
+             is defined in a class called Somacuration_GUI and also inherits the Frame class from 
+             tkinter. 
     
     3.271
     Curation_GUI:
@@ -1141,7 +1248,7 @@ curationgui: Unlike the past GUI modules described in this documentation, this m
 
 3.28
 databaseentrygui: This module contains the code for the Database Sample & Neuron Entry service. 
-                  Just like the curationgui module, this module also contains two classes. The 
+----------------- Just like the curationgui module, this module also contains two classes. The 
                   first class defined in this module is DBSelect_GUI, which inherits the Frame 
                   class from tkinter. This class creates a frame for the user to select which 
                   database they want to make entries to. The second class is called Entry_GUI 
@@ -1164,13 +1271,14 @@ databaseentrygui: This module contains the code for the Database Sample & Neuron
 	The main elements defined in this class are a dropdown menu for sample selection, a 
         button for sample data entry, a dropdown menu for neuron tag selection, a button for 
         single neuron data entry, a button to enter data for all the neurons in a selected sample, 
+	a button to upload the files for a single neuron, a button to upload the files for all neurons,
         a textbox, a button to return to database selection, and an exit button. Status updates 
         on the data entry process are echoed to the textbox when the user selects any of the data 
         entry options. 
 
 	-------
 	Methods:
-	-------	
+	-------
 
 	unlock_neurondropdown(event):
 		-Populates the neuron tag dropdown menu with the completed neurons from the 
@@ -1194,6 +1302,39 @@ databaseentrygui: This module contains the code for the Database Sample & Neuron
                  the selected sample from the dropdown menu. Calls the post_ALL_neurons method for
 		 all the completed neurons in the selected sample. Enters the relevant data for 
                  all complete neurons to the Neruon Browser Sample Manager Database.
-	
-		 
 
+	upload_caller(uploadAll):
+		-Initializes the SWCUploader class and calls the uploadNeuron or uploadAllNeurons
+		 methods depending on the boolean value of the uploadAll arguemnt. 
+
+	upload_controller(uploadAll=False):
+		-Calls the upload_caller method within a new thread if all the required dropdown 
+		 menu options are selected in the GUI. Generates the loading screen which shows 
+		 during the upload.
+
+	runRaiser(event):
+		-Deiconifies the loading bar window on main window focus and click. Event 
+                 argument can be either a '<Button-1>' event or a '<FocusIn>' event.
+
+3.29		 
+mungui: This module contains the code for the Unfinished Neuron Mover service. The service is defined
+------- in a class called MUN_GUI which inherits the Frame class from tkinter. The MUN_GUI class
+	takes parent and controller as arguments, which are described above.
+	
+	The main elements defined in this service are a dropdown menu, a button, a textbox, and an
+	exit button. The dropdown menu allows the user to select a sample from the Active Neuron
+	Worksheet and queue it for moving. The button below the dropdown menu allows the user to
+	move all of the unfinished neurons from that sample to the Unfinished Neurons directory.
+	Messages are echoed to the textbox regarding the status of the moving process. 
+
+	-------
+	Methods:
+	-------	
+	
+	move_now():
+		-Calls the copyto_unf function from the move_unf_neurons.py module to move the
+		 unfinished neurons from the selected sample.
+	
+	MUNguiexit():
+		-Returns the user to the main menu and closes the openpyxl object for the
+		 Active Neuron Worksheet if it hasn't already been closed.

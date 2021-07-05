@@ -21,7 +21,7 @@ class Documentation(Frame):
         docs.close()
         self.report = Text(self.mainframe, width = 105, height = 120)
         self.report.insert(END, fulldoc)
-        self.report['state'] = 'disabled'
+        #self.report['state'] = 'disabled'
         self.report.pack(side = LEFT)
     
         scroll = ttk.Scrollbar(self.mainframe, orient = VERTICAL, command = self.report.yview)

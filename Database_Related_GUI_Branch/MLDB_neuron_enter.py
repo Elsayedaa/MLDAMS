@@ -30,8 +30,8 @@ logging.basicConfig(level=logging.INFO)
 
 class Neuronposter:
     def __init__(self, sample, GraphQLInstance):
-        self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
         self.GraphQLInstance = GraphQLInstance
+        self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
 
         #Initializing different variables for each database instance
         #graphql server url:
@@ -185,22 +185,22 @@ class Neuronposter:
 
 class SWCUploader:
     def __init__(self, sample, GraphQLInstance):
-        self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
         self.GraphQLInstance = GraphQLInstance
+        self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir) 
 
         #Initializing different variables for each database instance
         #graphql server url:
         if self.GraphQLInstance == "sandbox":
             self.sampleapi = "http://mouselight.int.janelia.org:10671/graphql"
             self.tracingapi = "http://mouselight.int.janelia.org:10651/graphql"
-            self.transformapi = "http://mouselight.int.janelia.org:10661/graphql"
+            #self.transformapi = "http://mouselight.int.janelia.org:10661/graphql"
             print("You are now accessing the SANDBOX database instance.")
             
         #Same structure as above for the production database    
         if self.GraphQLInstance == "production":
             self.sampleapi = "http://mouselight.int.janelia.org:9671/graphql"
             self.tracingapi = "http://mouselight.int.janelia.org:9651/graphql"
-            self.transformapi = "http://mouselight.int.janelia.org:9661/graphql"
+            #self.transformapi = "http://mouselight.int.janelia.org:9661/graphql"
             print("You are now accessing the PRODUCTION database instance.")
 
         self.GQLDir = r'prodv_queries&mutations'

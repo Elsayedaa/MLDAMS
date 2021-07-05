@@ -7,7 +7,7 @@ appParentDir = abspath.replace(r'\GUI_Menu_Related\Release_1.0','')
 sys.path.append(r"{}\GUI_Menu_Related\Release_1.0".format(appParentDir))
 from tkinter import *
 from tkinter import ttk
-import anwgui, mungui, locatorgui, resultmkrgui, curationgui, databaseentrygui, helpgui
+import anwgui, mungui, locatorgui, resultmkrgui, curationgui, databaseentrygui, helpgui, displayrangegui
 
 
 class StartPage(Frame): 
@@ -20,7 +20,7 @@ class StartPage(Frame):
         welcometext = """Welcome to the Mouselight Data Automation Management System\nA graphical user interface for annotator pipeline related automation scripts\n\nPlease select a service:\n"""
 
         welcome_label1 = Label(welcome_frame, text=welcometext, font = ('Arial', 14))
-        welcome_label1.grid(column=0, row=0, columnspan=7)
+        welcome_label1.grid(column=0, row=0, columnspan=8)
 
         ###################################################################################################
         #                           Making the buttons for the various services
@@ -31,12 +31,12 @@ class StartPage(Frame):
         
         somalocator_clk= ttk.Button(welcome_frame,text = "Soma Brain Area Locator", command= lambda: controller.show_frame(locatorgui.Locator_GUI))
         somalocator_clk.grid(column=1, row=1, columnspan = 1)
+
+        displayrange_clk = ttk.Button(welcome_frame,text = "Registration Display Settings Record", command = lambda: controller.show_frame(displayrangegui.displayRangeTree))
+        displayrange_clk.grid(column=2, row=1, columnspan = 1)
   
         mk_result_dir_clk = ttk.Button(welcome_frame,text = "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI))
-        mk_result_dir_clk.grid(column=2, row=1, columnspan = 1)
-
-        move_unf_neurons_clk= ttk.Button(welcome_frame,text = "Unfinished Neuron Mover", command=lambda: controller.show_frame(mungui.MUN_GUI))
-        move_unf_neurons_clk.grid(column=3, row=1, columnspan = 1)
+        mk_result_dir_clk.grid(column=3, row=1, columnspan = 1)
 
         mk_temp_curation_clk= ttk.Button(welcome_frame,text = "Temporary Curation Folder Maker", command = lambda: controller.show_frame(curationgui.Curation_GUI))
         mk_temp_curation_clk.grid(column=4, row=1, columnspan = 1)
@@ -46,6 +46,9 @@ class StartPage(Frame):
 
         mldb_sample_enter_clk= ttk.Button(welcome_frame,text = "Database Sample & Neuron Entry", command = lambda: controller.show_frame(databaseentrygui.DBSelect_GUI))
         mldb_sample_enter_clk.grid(column=6, row=1, columnspan = 1)
+
+        move_unf_neurons_clk= ttk.Button(welcome_frame,text = "Unfinished Neuron Mover", command=lambda: controller.show_frame(mungui.MUN_GUI))
+        move_unf_neurons_clk.grid(column=7, row=1, columnspan = 1)
 
 
         ###################################################################################################
@@ -72,16 +75,17 @@ class StartPage(Frame):
 
         servicessub.add_command(label= "Soma Brain Area Locator", command = lambda: controller.show_frame(locatorgui.Locator_GUI))
 
-        servicessub.add_command(label= "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI))
+        servicessub.add_command(label = "Registration Display Settings Record", command = lambda: controller.show_frame(displayrangegui.displayRangeTree))
 
-        servicessub.add_command(label= "Unfinished Neuron Mover", command = lambda: controller.show_frame(mungui.MUN_GUI))
+        servicessub.add_command(label= "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI))
 
         servicessub.add_command(label= "Temporary Curation Folder Maker", command = lambda: controller.show_frame(curationgui.Curation_GUI))
 
-        servicessub.add_command(label= "Soma Compartment Curation Helper", command = lambda: controller.show_frame(curationgui.Somacuration_GUI))
+        servicessub.add_command(label= "Curation Helper", command = lambda: controller.show_frame(curationgui.Somacuration_GUI))
 
         servicessub.add_command(label= "Database Sample & Neuron Entry", command = lambda: controller.show_frame(databaseentrygui.DBSelect_GUI))
-
+        
+        servicessub.add_command(label= "Unfinished Neuron Mover", command = lambda: controller.show_frame(mungui.MUN_GUI))
         ###################################################################################################
         #Adding the 'help' submenu to the topmenu
         ###################################################################################################
