@@ -178,14 +178,23 @@ class Somacuration_GUI(Frame):
         #            Making a frame to hold the treeview and data entry portion
         #----------------------------------------------------------------------------------------- 
 
-        self.tvframe = ttk.Frame(self.mainframe)
-        self.tvframe.grid(row = 1, column = 2, rowspan = 5, sticky = "ns")
+        self.dataentry_frame = ttk.Frame(self.mainframe)
+        self.dataentry_frame.grid(row = 1, column = 2, rowspan = 5, sticky = "ns", padx = 10)
 
         #-----------------------------------------------------------------------------------------
         #                   making the treeview and setting the columns
         #-----------------------------------------------------------------------------------------
 
-        self.reviewTree = ttk.Treeview(self.tvframe, height = 25)
+        #a frame to hold the trevview and its scrollbar
+        self.tvframe = ttk.Frame(self.dataentry_frame)
+        self.tvframe.grid(row=0, sticky = "nsew")
+
+        tvscroll = Scrollbar(self.tvframe)
+        tvscroll.pack(side = "right", fill = "y")
+
+        self.reviewTree = ttk.Treeview(self.tvframe, height = 25, yscrollcommand = tvscroll.set)
+        tvscroll.config(command = self.reviewTree.yview)
+
         self.reviewTree.bind('<1>', self.createEntryFrame)
         self.reviewTree['columns'] = ("Root Review", "Compartment from Script", "Compartment from Mesh", "Compartment from Manual Review", "Final Decision", "Comments")
         
@@ -205,7 +214,7 @@ class Somacuration_GUI(Frame):
         self.reviewTree.heading("Final Decision", text = "Final Decision")
         self.reviewTree.heading("Comments", text = "Comments")
 
-        self.reviewTree.grid(row=0, sticky = "nsew")
+        self.reviewTree.pack(fill = "both")
 
 
         #-----------------------------------------------------------------------------------------
@@ -491,18 +500,18 @@ class Somacuration_GUI(Frame):
             self.entryframes[frametext]['modified_after_save'] = None
 
                 #a new frame is made and stored as a value under the key of 'frame' inside the child dictionary
-                #the frame is initiated inside the self.tvframe frame
+                #the frame is initiated inside the self.dataentry_frame frame
                 #the call structure is as follows: 
                     #-self.entryframes is the parent dictionary
                     #-[frametext] is an f string combo of the sample name and neuron tag, used as a key to the child dictionary
                     #-['frame'] is the key fro the frame value
 
             if "Welcome" in frametext:
-                self.entryframes[frametext]['frame'] = ttk.LabelFrame(self.tvframe, text = "Please queue and select a neuron for curation.")
+                self.entryframes[frametext]['frame'] = ttk.LabelFrame(self.dataentry_frame, text = "Please queue and select a neuron for curation.")
             else:
-                self.entryframes[frametext]['frame'] = ttk.LabelFrame(self.tvframe, text = f"Data entry for {frametext}")
+                self.entryframes[frametext]['frame'] = ttk.LabelFrame(self.dataentry_frame, text = f"Data entry for {frametext}")
             
-            self.tvframe.rowconfigure(0, weight = 1)
+            self.dataentry_frame.rowconfigure(0, weight = 1)
             self.entryframes[frametext]['frame'].grid(row=1, sticky = "nsew")
 
             #subframes are added inside the neuron frame to hold different data entry componenets:

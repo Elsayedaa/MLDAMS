@@ -21,7 +21,15 @@ class displayRangeTree(Frame):
         self.mainframe = Frame(self)
         self.mainframe.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        self.reviewTree = ttk.Treeview(self.mainframe, height = 35)
+        treeframe = Frame(self.mainframe)
+        treeframe.grid(row=0, sticky = "nsew", columnspan = 3)
+
+        treescrollbar = Scrollbar(treeframe)
+        treescrollbar.pack(side = "right", fill = "y")
+
+        self.reviewTree = ttk.Treeview(treeframe, height = 35, yscrollcommand = treescrollbar.set)
+        treescrollbar.config(command = self.reviewTree.yview)
+        
         self.reviewTree['columns'] = ("Display Range Minimum", "Display Range Maximum")
         
         self.reviewTree.column("#0", width = 300, minwidth = 25)
@@ -32,7 +40,7 @@ class displayRangeTree(Frame):
         self.reviewTree.heading("Display Range Minimum", text = "Display Range Minimum")
         self.reviewTree.heading("Display Range Maximum", text = "Display Range Maximum")
 
-        self.reviewTree.grid(row=0, sticky = "nsew", columnspan = 3)
+        self.reviewTree.pack()
         with open(r"\\dm11\mousebrainmicro\registration\Database\displaySettings.json") as f:
             self.diplay_settings = json.load(f)
 
@@ -43,7 +51,6 @@ class displayRangeTree(Frame):
                 displaymax = sample['DisplayRange'][1]
                 self.treeindex[i] = sample_name
                 self.reviewTree.insert(parent='', index='end', iid = i, text = sample_name, values = (displaymin, displaymax))
-
         self.reviewTree.bind("<Button-1>", self.get_clicked_index)
         
         sample_label = Label(self.mainframe, text = "Sample:")
@@ -72,7 +79,8 @@ class displayRangeTree(Frame):
 
         exit_button = ttk.Button(self.mainframe, text = "Return to Main Menu", command = lambda: controller.show_frame(startpage.StartPage))
         exit_button.grid(row = 4, column = 1, sticky = "ew")
-    
+        
+        self.reviewTree.see(list(self.treeindex.keys())[-1])
     def add_row(self):
         #define entry conditions
         if re.search(r"\d{4}-\d{2}-\d{2}", self.sample_entry.get()) == None:
@@ -91,12 +99,15 @@ class displayRangeTree(Frame):
             return
         
         #add new row
-        id = list(self.treeindex.keys())[-1]+1
-        self.treeindex[id] = self.sample_entry.get()
-        self.reviewTree.insert(parent='', index='end', iid = id, text = self.sample_entry.get(), values = (
+        row_id = list(self.treeindex.keys())[-1]+1
+        self.treeindex[row_id] = self.sample_entry.get()
+        self.reviewTree.insert(parent='', index='end', iid = row_id, text = self.sample_entry.get(), values = (
             self.min_entry.get(), 
             self.max_entry.get()
         ))
+        self.controller.after(1, self.reviewTree.yview_moveto(1))
+        self.controller.after(1, self.reviewTree.yview_moveto(1))
+        self.reviewTree.see(row_id)
 
         #add entry to display settings json
         self.diplay_settings["Samples"].append(
