@@ -1,2 +1,9 @@
 \Database_Related_GUI_Branch\auth.txt
 \mldamsenv
+\__pycache__
+\.vscode
+\Curation_Related_GUI_Branch\__pycache__
+\Database_Related_GUI_Branch\__pycache__
+\GUI_Menu_Related\__pycache__
+\GUI_Menu_Related\Release_1.0\__pycache__
+\Registration_Related_GUI_Branch\__pycache__
