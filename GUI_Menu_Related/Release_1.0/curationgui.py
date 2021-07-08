@@ -452,8 +452,12 @@ class Somacuration_GUI(Frame):
             #the neuron is removed from the treeview
             self.reviewTree.delete(treeid)
         
-        if clickedindex == 0 and len(list(self.SelectedNeurons.get(0,END))) <= 1:
+        if clickedindex == 0 and len(list(self.SelectedNeurons.get(0,END))) == 0:
             self.createEntryFrame("Welcome")
+        else:
+            toprow = self.reviewTree.get_children()[0]
+            topitem = self.reviewTree.item(toprow)["text"]
+            self.createEntryFrame(topitem)
 
 
     ######################################################################################
