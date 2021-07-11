@@ -972,7 +972,10 @@ class Somacuration_GUI(Frame):
     #Method that generates loading screen while the MATLAB script runs and calls the above method
     ######################################################################################
     def runner(self, sample,includelist):
-        self.existing_entry_warning.destroy()
+        try:
+            self.existing_entry_warning.destroy()
+        except AttributeError:
+            pass
         self.imRunning = Toplevel()
         self.controller.bind('<FocusIn>', self.runRaiser)
         self.controller.bind('<Button-1>', self.runRaiser)
