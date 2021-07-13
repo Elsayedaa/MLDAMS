@@ -12,12 +12,13 @@ from html_table_parser import HTMLTableParser
 import pandas as pd
 import math
 
-def isb(username, password): 
+def isb(*auth): 
     chromedriver_path = r"\\dm11\mousebrainmicro\Mouselight_Data_Management\Chromdriver\chromedriver.exe"
     ser = Service(chromedriver_path)
     try:
         driver = webdriver.Chrome(service = ser)
     except Exception as e:
+        print(e)
         if "Message: session not created: This version of ChromeDriver only supports Chrome version" in str(e):
             bver_s = str(e).index("Current browser version is ")+27
             bver_e = bver_s + str(e)[bver_s:].index(" ")
@@ -31,17 +32,17 @@ def isb(username, password):
     try:
         driver.get("http://wiki.int.janelia.org/wiki/pages/viewpage.action?spaceKey=ML&title=Imaged+Samples+Board")
 
-        #u_bar = driver.find_element_by_id("os_username")
         u_bar = driver.find_element(By.ID, "os_username")
-        #p_bar = driver.find_element_by_id("os_password")
         p_bar = driver.find_element(By.ID, "os_password")
-        #login = driver.find_element_by_id("loginButton")
         login = driver.find_element(By.ID, "loginButton")
         
+        if auth != ():
+            username = auth[0]
+            password = auth[1]
 
-        u_bar.send_keys(username)
-        p_bar.send_keys(password)
-        login.click()
+            u_bar.send_keys(username)
+            p_bar.send_keys(password)
+            login.click()
     except UnboundLocalError:
         return
 

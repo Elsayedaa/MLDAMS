@@ -14,15 +14,21 @@ from Isb import isb
 
 class MLDB_sample_enter:
     def __init__(self, GQLInstance):
-        with open(r'{}\Database_Related_GUI_Branch\auth.txt'.format(appParentDir), 'r') as auth:
-            auth_up = str(auth.read()).split('\n')
-            u = auth_up[0]
-            p = auth_up[1]
+        try:
+            with open(r'{}\Database_Related_GUI_Branch\auth.txt'.format(appParentDir), 'r') as auth:
+                auth_up = str(auth.read()).split('\n')
+                u = auth_up[0]
+                p = auth_up[1]
+        except FileNotFoundError:
+            print("Warning: Authentication file is missing.\nTo enable automatic authentication, please create a text file named 'auth' in app folder: \Database_Related_GUI_Branch.\nThen, populate the text file with your HHMI username on the top line and your HHMI password on the second line.\n")
+            pass
         try:
             self.isbdf = isb(u, p) #pandas dataframe containing the table data from the imaged samples board
         except Exception as e:
             if "local variable 'driver' referenced before assignment" in str(e):
-                pass #this error is handled in Isb.py line 16
+                pass #this error is handled in Isb.py line 20
+            if "local variable 'u' referenced before assignment" in str(e):
+                self.isbdf = isb()
         self.folderpath = r"{}\Database_Related_GUI_Branch".format(appParentDir)  
         self.GQLInstance = GQLInstance
 

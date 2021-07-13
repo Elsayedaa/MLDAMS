@@ -390,10 +390,12 @@ The MLDAMS also utilizes standard libraries including:
 ----- Board in the Mouselight Wiki into a Pandas dataframe. This dataframe is used by 
       MLDB_sample_enter to automate sample data entry into the Neuron Broswer database.
 
-	isb(username, password): 
-		-The isb function takes the username and password of the user's HHMI account to 
-		 as arguments to access the wiki automatically via the chrome webdriver and 
-		 selenium library.
+	isb(*auth): 
+		-The isb function takes takes an optional argument "auth", which should be a tuple of
+		 the user's username and password of the user's HHMI account. The isb function will
+		 still run without the argument; if this is the case, the user will be prompted
+		 to enter their username and password directly into the browser window that pops
+		 up when the function is run. 
 
  2.26
 -MLDB_sample_enter: This module contains the class MLDB_sample_enter, which is used to 
@@ -410,7 +412,7 @@ The MLDAMS also utilizes standard libraries including:
 	Initialization of the MLDB_sampler_enter object:
 		-initializes a dataframe of the imaged samples board via the isb() function 
 		 and saves it in an instance variable called self.isbdf.
-			-for authentication, the initialization function will read a text 
+			-for automatic authentication, the __init__ function will read a text 
 			 file saved at \GUI_Branch\Database_Related_GUI_Branch\auth.txt
 			-you will have to make this file yourself if you are cloning from 
 			 github since the file is on the gitignore list
