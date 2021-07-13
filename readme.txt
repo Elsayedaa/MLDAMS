@@ -81,6 +81,16 @@ It's advised to use this guide over the one provided by HHMI since the HHMI guid
 how to install version 2018b.
 The MLDAMS currently utilizes MATLAB version 2020b.
 
+The user must also have an installation of Google Chrome on their computer as well as the 
+Google Chrome webdriver. The Google Chrome webdriver is already stored on the dm11 drive
+at "\\dm11\mousebrainmicro\Mouselight_Data_Management\Chromdriver\chromedriver.exe". 
+This path is defined in the Isb module, line 16. The webdriver is for Chrome version 91,
+which is the latest version of Google Chrome at the time of writing. If you have installed
+an upgraded version of Google Chrome, you will need to update the Google Chrome webdriver 
+on dm11. Download the matching webdriver version from https://chromedriver.chromium.org/downloads
+then unpack the zip in the Chromedriver folder. If you already have Google Chrome version 91,
+you can skip all of this. 
+
 The MLDAMS also relies on several 3rd party Python libraries. These libraries include:
 -Matlab Engine API
 -openpyxl
@@ -93,9 +103,9 @@ The MLDAMS also relies on several 3rd party Python libraries. These libraries in
 -selenium 
 	-Google Chrome webdriver corresponding to the user's current version of Chrome is 
 	 also needed
-	-webdriver path variable is defined in the Isb module, line 13
+	-webdriver path variable is defined 
 	-the default path is: 
-	 "\\dm11\mousebrainmicro\Google Chrome Webdriver\chromedriver.exe"
+	 
 
 You can create a virtual environment with the name mldamsenv which contains all necessary
 dependencies by running installdependencies.bat
