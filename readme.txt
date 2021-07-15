@@ -109,6 +109,7 @@ The MLDAMS also relies on several 3rd party Python libraries. These libraries in
 
 You can create a virtual environment with the name mldamsenv which contains all necessary
 dependencies by running installdependencies.bat
+This script must be run from an Adminsistrator account or right click > Run as Administrator.
 
 The MLDAMS also utilizes standard libraries including:
 -datetime
