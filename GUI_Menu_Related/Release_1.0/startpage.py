@@ -20,35 +20,51 @@ class StartPage(Frame):
         welcometext = """Welcome to the Mouselight Data Automation Management System\nA graphical user interface for annotator pipeline related automation scripts\n\nPlease select a service:\n"""
 
         welcome_label1 = Label(welcome_frame, text=welcometext, font = ('Arial', 14))
-        welcome_label1.grid(column=0, row=0, columnspan=8)
+        welcome_label1.grid(column=0, row=0, columnspan=3)
 
         ###################################################################################################
         #                           Making the buttons for the various services
         ###################################################################################################
+        #--------------------------------------------------------------------------------------------------
+        label1 = Label(welcome_frame, text = "Data Querying & Management:")
+        label1.grid(column=0, row=1, columnspan = 1)
 
-        anw_parsker_clk = ttk.Button(welcome_frame,text = "Neuron Worksheet Report Generator",command=lambda: controller.show_frame(anwgui.ANWparser_GUI))
-        anw_parsker_clk.grid(column=0, row=1, columnspan = 1)
+        anw_parsker_clk = ttk.Button(welcome_frame,text = "Neuron Worksheet Report Generator",command=lambda: controller.show_frame(anwgui.ANWparser_GUI), width = 35)
+        anw_parsker_clk.grid(column=0, row=2, columnspan = 1)
         
-        somalocator_clk= ttk.Button(welcome_frame,text = "Soma Brain Area Locator", command= lambda: controller.show_frame(locatorgui.Locator_GUI))
-        somalocator_clk.grid(column=1, row=1, columnspan = 1)
+        somalocator_clk= ttk.Button(welcome_frame,text = "Soma Brain Area Locator", command= lambda: controller.show_frame(locatorgui.Locator_GUI), width = 35)
+        somalocator_clk.grid(column=0, row=3, columnspan = 1)
 
-        displayrange_clk = ttk.Button(welcome_frame,text = "Registration Display Settings Record", command = lambda: controller.show_frame(displayrangegui.displayRangeTree))
-        displayrange_clk.grid(column=2, row=1, columnspan = 1)
+        move_unf_neurons_clk= ttk.Button(welcome_frame,text = "Unfinished Neuron Mover", command=lambda: controller.show_frame(mungui.MUN_GUI), width = 35)
+        move_unf_neurons_clk.grid(column=0, row=4, columnspan = 1)
+
+        #--------------------------------------------------------------------------------------------------
+        label2 = Label(welcome_frame, text = "Sample Registration:")
+        label2.grid(column=1, row=1, columnspan = 1)
+
+        displayrange_clk = ttk.Button(welcome_frame,text = "Registration Display Settings Record", command = lambda: controller.show_frame(displayrangegui.displayRangeTree), width = 35)
+        displayrange_clk.grid(column=1, row=2, columnspan = 1)
   
-        mk_result_dir_clk = ttk.Button(welcome_frame,text = "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI))
-        mk_result_dir_clk.grid(column=3, row=1, columnspan = 1)
+        mk_result_dir_clk = ttk.Button(welcome_frame, text = "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI, "r"), width = 35)
+        mk_result_dir_clk.grid(column=1, row=3, columnspan = 1)
 
-        mk_temp_curation_clk= ttk.Button(welcome_frame,text = "Temporary Curation Folder Maker", command = lambda: controller.show_frame(curationgui.Curation_GUI))
-        mk_temp_curation_clk.grid(column=4, row=1, columnspan = 1)
+        mk_db_dir_clk = ttk.Button(welcome_frame, text = "Registration Database Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI, "d"), width = 35)
+        mk_db_dir_clk.grid(column=1, row=4, columnspan = 1)
 
-        mk_temp_curation_clk= ttk.Button(welcome_frame,text = "Curation Helper", command = lambda: controller.show_frame(curationgui.Somacuration_GUI))
-        mk_temp_curation_clk.grid(column=5, row=1, columnspan = 1)
+        #--------------------------------------------------------------------------------------------------
+        label3 = Label(welcome_frame, text = "Data Curation & Entry:")
+        label3.grid(column=2, row=1, columnspan = 1)
 
-        mldb_sample_enter_clk= ttk.Button(welcome_frame,text = "Database Sample & Neuron Entry", command = lambda: controller.show_frame(databaseentrygui.DBSelect_GUI))
-        mldb_sample_enter_clk.grid(column=6, row=1, columnspan = 1)
+        mk_temp_curation_clk= ttk.Button(welcome_frame,text = "Temporary Curation Folder Maker", command = lambda: controller.show_frame(curationgui.Curation_GUI), width = 35)
+        mk_temp_curation_clk.grid(column=2, row=2, columnspan = 1)
 
-        move_unf_neurons_clk= ttk.Button(welcome_frame,text = "Unfinished Neuron Mover", command=lambda: controller.show_frame(mungui.MUN_GUI))
-        move_unf_neurons_clk.grid(column=7, row=1, columnspan = 1)
+        mk_temp_curation_clk= ttk.Button(welcome_frame,text = "Curation Helper", command = lambda: controller.show_frame(curationgui.Somacuration_GUI), width = 35)
+        mk_temp_curation_clk.grid(column=2, row=3, columnspan = 1)
+
+        mldb_sample_enter_clk= ttk.Button(welcome_frame,text = "Database Sample & Neuron Entry", command = lambda: controller.show_frame(databaseentrygui.DBSelect_GUI), width = 35)
+        mldb_sample_enter_clk.grid(column=2, row=4, columnspan = 1)
+
+        
 
 
         ###################################################################################################
