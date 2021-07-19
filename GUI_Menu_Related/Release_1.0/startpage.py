@@ -91,9 +91,13 @@ class StartPage(Frame):
 
         servicessub.add_command(label= "Soma Brain Area Locator", command = lambda: controller.show_frame(locatorgui.Locator_GUI))
 
+        servicessub.add_command(label= "Unfinished Neuron Mover", command = lambda: controller.show_frame(mungui.MUN_GUI))
+
         servicessub.add_command(label = "Registration Display Settings Record", command = lambda: controller.show_frame(displayrangegui.displayRangeTree))
 
-        servicessub.add_command(label= "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI))
+        servicessub.add_command(label= "Registration Result Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI, "r"))
+
+        servicessub.add_command(label= "Registration Database Folder Maker", command = lambda: controller.show_frame(resultmkrgui.RegResultDir_GUI, "d"))
 
         servicessub.add_command(label= "Temporary Curation Folder Maker", command = lambda: controller.show_frame(curationgui.Curation_GUI))
 
@@ -101,7 +105,6 @@ class StartPage(Frame):
 
         servicessub.add_command(label= "Database Sample & Neuron Entry", command = lambda: controller.show_frame(databaseentrygui.DBSelect_GUI))
         
-        servicessub.add_command(label= "Unfinished Neuron Mover", command = lambda: controller.show_frame(mungui.MUN_GUI))
         ###################################################################################################
         #Adding the 'help' submenu to the topmenu
         ###################################################################################################
@@ -109,5 +112,5 @@ class StartPage(Frame):
         self.topmenu.add_cascade(label = 'Help', menu = helpsub)
 
         helpsub.add_command(label = 'Documentation', command = lambda: controller.show_frame(helpgui.Documentation))
-        helpsub.add_command(label = 'User instructions', command = lambda: controller.show_frame(helpgui.Uins))
-        helpsub.add_command(label = 'Protocols') #needs 2 cascading menus, 'manual protocol' and 'automation assisted protocol'
+        helpsub.add_command(label = 'User instructions', command = lambda: os.startfile(r'"{}\GUI User Instructions.docx"'.format(appParentDir)))
+        helpsub.add_command(label = 'Protocols', command = lambda: os.startfile(r'"\\dm11\mousebrainmicro\SOP\Data Curation 2021.docx"')) 

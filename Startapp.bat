@@ -1,2 +1,2 @@
 echo Loading...
-"%CD%\mldamsenv\Scripts\python.exe" "%CD%\GUI_Menu_Related\Release_1.0\main.py"
+"%~dp0\mldamsenv\Scripts\python.exe" "%~dp0\GUI_Menu_Related\Release_1.0\main.py"

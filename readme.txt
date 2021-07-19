@@ -13,6 +13,7 @@ Contents:
 		2.26) MLDB_neuron_enter
 		2.27) MLDB_sample_enter
 		2.28) mk_result_dir
+		2.29) mk_db_dir
 
 3) GUI Documentation
 	3.1) Overview
@@ -54,6 +55,7 @@ in the documentation section:
 
 	Registration Related Modules:
 	-mk_result_dir
+	-mk_db_dir
 
                                                   2
                                     Backend Module Documentation:
@@ -784,8 +786,31 @@ The MLDAMS also utilizes standard libraries including:
 
 
 	copyto_results(dir):
-		-Moves and renames the transform file of each pass done for a registration 
-		 to a folder named 'result'.
+		-Copies and renames the transform file of each pass done for a registration 
+		 to a subfolder in the sample registration folder named 'Result'.
+		-The dir argument should be the path to the sample registration folder.
+		-This operation is needed as a step in the wider protocol for sample 
+		 registration. 
+
+
+ 2.29
+-mk_db_dir: Yet another module that contains just one fuction. This function is used to 
+----------- quickly make a database folder folder during sample registration. 
+
+
+	copyto_db(dir, guicall = False):
+		-Copies and renames the files necessary for uploading a sample to Neuron
+		 Browser to a new sample folder in the Database directory in dm11, located 
+		 at \\dm11\mousebrainmicro\registration\Database.
+		-Each copy operation is done on a separate thread so they occur concurrently.
+		-The final copy operation (copying the final transform) is not done on a
+		 separate thread to avoid prematurely destroying the loading bar in the GUI.
+		-The dir argument should be the path to the sample registration folder.
+		-The guicall argument is False by default if the function is called from
+		 outside of the GUI. If the function is called within the GUI, the guicall
+		 argument is switched to True. This argument sets the path seperator within
+		 the function. '\' when called outside the GUI and '/' when called within
+		 the GUI.
 		-This operation is needed as a step in the wider protocol for sample 
 		 registration. 
 
@@ -992,29 +1017,42 @@ displayrangegui: This module contains the code for the Registration Display Sett
 	
                  		
 3.26		
-resultmkrgui: This module contains the code for the Registration Result Folder Maker service. The
-------------- service is defined in a class called RegResultDir_GUI which inherits the Frame class
-              from tkinter. The RegResultDir_GUI class takes parent and controller as arguments, 
-	      which are described above. 
+resultmkrgui: This module contains the code for the Registration Result Folder Maker & the Registration
+------------- Database Folder Maker services. The services are defined in a class called RegResultDir_GUI,
+	      which inherits the Frame class from tkinter. The RegResultDir_GUI class takes parent and 
+	      controller as arguments, which are described above. This class also takes optional arguments
+	      *args which correspond to the service being initialized. An args value of "r" initializes 
+	      the Result Folder Maker and an args value of "d" initializes the Database Folder Maker.
 	      
 	      The main elements defined in this service are two buttons, a textbox, and an exit
-	      button. The first button opens a file dialogue box within the registration folder
+	      button. The first button opens a file dialogue box within the main registration folder
 	      for the user to select a registration sample folder. The second button allows the
-	      user to create a result directory for the selected registration sample. Messages are
-	      echoed to the textbox regarding the status of the result folder making process. 
+	      user to create a result/database directory for the selected registration sample. 
+	      Messages are echoed to the textbox regarding the status of the result folder making 
+	      process. A loading bar appears if the Database Folder Maker is used due to the time
+	      it takes to copy the large database files.
 
 	-------
 	Methods:
 	-------	
 	
 	FileDialog():
-		-Opens a file dialogue box in the registration folder directory.
+		-Opens a file dialogue box in the main registration folder directory.
 		
 	make():
-		-Calls the copyto_results function from the mk_result_dir.py module to create 
-		 the result folder for the selected registration sample path.
-		 
+		-Calls the copyto_results function from mk_result_dir.py or the copyto_db function from
+		 mk_db_dir.py to create the result or database folder for the selected registration sample.
+		 The function that is called depends on whether the class is initialized with an *args
+		 value of "r" (copyto_results) or "d" (copyto_db). Service initialization is done 
+		 automatically based on the service selected in the main app window.
 
+	copy_controller():
+		-Creates the loading bar and calls the loading bar start function & the make() function
+		 in sepearate threads.
+
+	runRaiser(event):
+		-Deiconifies the loading bar window on main window focus and click. Event 
+                 argument can be either a '<Button-1>' event or a '<FocusIn>' event.
 
 3.27
 curationgui: This module contains the code for two separate but related services. The first service is 
