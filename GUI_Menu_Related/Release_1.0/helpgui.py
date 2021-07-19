@@ -27,22 +27,3 @@ class Documentation(Frame):
         scroll = ttk.Scrollbar(self.mainframe, orient = VERTICAL, command = self.report.yview)
         scroll.pack(side = RIGHT, fill = Y)
         self.report['yscrollcommand'] = scroll.set
-
-class Uins(Frame): 
-    def __init__(self, parent, controller): 
-        Frame.__init__(self,parent)
-        self.mainframe = Frame(self)
-        self.mainframe.pack(side = 'top')
-        self.controller = controller
-
-        docs = open(r'{}\GUI User Instructions.docx'.format(appParentDir), 'r')
-        fulldoc = docs.read()
-        docs.close()
-        self.report = Text(self.mainframe, width = 105, height = 120)
-        self.report.insert(END, fulldoc)
-        self.report['state'] = 'disabled'
-        self.report.pack(side = LEFT)
-    
-        scroll = ttk.Scrollbar(self.mainframe, orient = VERTICAL, command = self.report.yview)
-        scroll.pack(side = RIGHT, fill = Y)
-        self.report['yscrollcommand'] = scroll.set
