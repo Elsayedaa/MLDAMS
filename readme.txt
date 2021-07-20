@@ -39,7 +39,7 @@ ________________________________________________________________________________
 The Mouselight Data Automation Management System is a GUI made to simplify calls to a collection 
 of Python scripts used to automate and aid with repetitive tasks in the Mouselight pipeline.
 
-These scripts are located within 8 modules divided into three categories, and described in depth 
+These scripts are located within 9 modules divided into three categories, and described in depth 
 in the documentation section:
 
 	Curation Related Modules:
