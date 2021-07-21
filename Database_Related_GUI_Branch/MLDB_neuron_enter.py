@@ -281,7 +281,14 @@ class SWCUploader:
                 print(f"Database server is down.")
 
     def uploadALLNeurons(self):
-        [self.uploadNeuron(neuron.split('_')[1]) for neuron in self.parser.consensuscompleteList]
+        for neuron in self.parser.consensuscompleteList:
+            samplestring = neuron.split("_")
+            samplename = samplestring[0]
+            neurontag = samplestring[1]
+            if os.path.isdir(r"\\dm11\mousebrainmicro\tracing_complete\{}\{}".format(samplename, neurontag)):
+                self.uploadNeuron(neurontag)
+            else:
+                print(f"File folder for {neurontag} does not exist in the Tracing Complete folder, upload skipped.")
         print(f"{self.sample} finished uploading.")
 
 

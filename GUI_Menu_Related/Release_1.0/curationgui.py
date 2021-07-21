@@ -893,34 +893,36 @@ class Somacuration_GUI(Frame):
         selectedsample = self.sample_selection.get()
 
         neuronlocdir = "{}\{}\{}\soma.txt".format(parentdir, selectedsample, tagonly)
-
-        if (
-            scriptcomp == "" or
-            finaldecision == ""
-        ):
-            if scriptcomp != "" and finaldecision == "":
-                self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
-                with open(neuronlocdir, 'r+') as somatxt:
-                    contents = somatxt.read()
-                    somatxt.truncate(0)
-                    somatxt.seek(0)
-                    somatxt.write(scriptcomp.strip())
-        else:
+        try:
             if (
-                scriptcomp.replace(',','') == finaldecision
+                scriptcomp == "" or
+                finaldecision == ""
             ):
-                self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
-                with open(neuronlocdir, 'r+') as somatxt:
-                    contents = somatxt.read()
-                    somatxt.truncate(0)
-                    somatxt.seek(0)
-                    somatxt.write(scriptcomp.strip())
+                if scriptcomp != "" and finaldecision == "":
+                    self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
+                    with open(neuronlocdir, 'r+') as somatxt:
+                        contents = somatxt.read()
+                        somatxt.truncate(0)
+                        somatxt.seek(0)
+                        somatxt.write(scriptcomp.strip())
+            else:
+                if (
+                    scriptcomp.replace(',','') == finaldecision
+                ):
+                    self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'Yes'
+                    with open(neuronlocdir, 'r+') as somatxt:
+                        contents = somatxt.read()
+                        somatxt.truncate(0)
+                        somatxt.seek(0)
+                        somatxt.write(scriptcomp.strip())
 
-            elif scriptcomp.replace(',','') != finaldecision:
-                self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'No'
-                with open(neuronlocdir, 'w') as somatxt:
-                    writemessage = f"{scriptcomp}\nCurated compartment: {finaldecision}"
-                    somatxt.write(writemessage)
+                elif scriptcomp.replace(',','') != finaldecision:   
+                    self.curationlog.loc[(self.curationlog['tag']==savename),('matches_manual')] = 'No'
+                    with open(neuronlocdir, 'w') as somatxt:
+                        writemessage = f"{scriptcomp}\nCurated compartment: {finaldecision}"
+                        somatxt.write(writemessage)
+        except FileNotFoundError:
+            print(f"{savename} soma compartment output textfile not found.")
                     
     ######################################################################################
     #        Method for saving all entries in the review tree to the dataframe
@@ -942,22 +944,25 @@ class Somacuration_GUI(Frame):
         self.sampleloc = locator(sample, reload=True)
 
         for neuron in includelist:
+            try:
+                sample_neuron = f"{sample}_{neuron}"
 
-            sample_neuron = f"{sample}_{neuron}"
+                #finding the script output
+                scriptcompartment = self.sampleloc.loc[self.sampleloc['tag']==neuron]['script'].values[0]
 
-            #finding the script output
-            scriptcompartment = self.sampleloc.loc[self.sampleloc['tag']==neuron]['script'].values[0]
+                #entering script output into the reviewtree
+                treeid = self.get_reviewTree_index(neuron)
+                self.reviewTree.set(treeid, "#2", scriptcompartment)
 
-            #entering script output into the reviewtree
-            treeid = self.get_reviewTree_index(neuron)
-            self.reviewTree.set(treeid, "#2", scriptcompartment)
+                if sample_neuron in self.curationlog['tag'].values:
 
-            if sample_neuron in self.curationlog['tag'].values:
+                    self.curationlog.loc[(self.curationlog['tag']==sample_neuron),('comp_from_script')] = scriptcompartment
 
-                self.curationlog.loc[(self.curationlog['tag']==sample_neuron),('comp_from_script')] = scriptcompartment
-
-            self.save_to_df(scriptcompartment, sample_neuron)
-            self.curationlog.to_pickle(self.savefile)
+                self.save_to_df(scriptcompartment, sample_neuron)
+                self.curationlog.to_pickle(self.savefile)
+            except IndexError:
+                print(f"{sample_neuron} tracing_complete folder not found, input has been skipped.")
+                pass
         try:
             self.existing_entry_warning.destroy()
         except AttributeError:
