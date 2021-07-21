@@ -136,14 +136,18 @@ class anw:
     #This method creates a list of dendrites that need to be completed
     def needsdendrites_make_list(self):
         #The method first creates a list of all dendrites marked as "Hold" or "Waiting"
-        opendendrites = [n for n in self.ws.loc[(self.ws["Dendrites"]=="HOLD") | (self.ws["Dendrites"]=="Waiting")].index if str(n).isnumeric()==False]
+        opendendrites = [n for n in self.ws.loc[(self.ws["Dendrites"]=="HOLD") | (self.ws["Dendrites"]=="Waiting") | (self.ws["Dendrites"]=="In Progress")].index if str(n).isnumeric()==False]
         namelist = []
         for n in opendendrites:
             #All dendrites which are also in the second pass done list are marked as needed with a finished second pass
-            if n in self.secpassdoneList:
+            if n in self.secpassdoneList and self.ws["Dendrites"][n] == "In Progress":
+                namelist.append(f"{n}: 2nd Pass: Done; dendrites in progress.")
+            elif n in self.secpassdoneList:
                 namelist.append(f"{n}: 2nd Pass: Done")
             #All dendrites which are also in the second pass needed list are marked as needed with a pending second pass
-            if n in self.secpassneededList:
+            if n in self.secpassneededList and self.ws["Dendrites"][n] == "In Progress":
+                namelist.append(f"{n}: 2nd Pass: Pending; dendrites in progress.")
+            elif n in self.secpassneededList:
                 namelist.append(f"{n}: 2nd Pass: Pending")
         return namelist
     
