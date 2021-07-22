@@ -1,0 +1,12 @@
+query {
+    neurons {
+      items {
+        tag
+        injection {
+          sample {
+            sampleDate
+          }
+        }
+      }
+    }
+  }

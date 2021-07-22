@@ -28,6 +28,7 @@ from tkinter import *
 import tkinter as tk
 from tkinter import filedialog, ttk
 import tkinter.font as tkFont
+import os
 import threading
 import requests 
 from io import StringIO
@@ -939,8 +940,29 @@ class Somacuration_GUI(Frame):
     #Method that calls the MATLAB curation script and enters its output into the review tree
     ######################################################################################
     def ML_DL_Tfunc(self, sample, includelist):
+        #running MLCuration
+        try:
+            self.MATeng.MLCuration(sample, includelist, nargout = 0)
+        except Exception as e:
+            if "Brace indexing is not supported for variables of this type" in e.args[0]:
+                #sample_tags = [f"{sample}+{tag}" for tag in includelist]
+                sample_finished_neurons_fol = os.listdir(r"\\dm11\mousebrainmicro\shared_tracing\Finished_Neurons\{}".format(sample))
+                for neuron in includelist:
+                    if neuron not in sample_finished_neurons_fol:
+                        print(f"{neuron} was not found in sample {sample}'s Finished_Neurons folder.")
+                print(f"Please make sure these neurons are saved to {sample}'s Finished_Neurons folder and try again.")
+                self.imRunning.destroy()
+                self.controller.unbind('<FocusIn>')
+                self.controller.unbind('<Button-1>')
+                return
+            else:
+                print(e.args)
+                self.imRunning.destroy()
+                self.controller.unbind('<FocusIn>')
+                self.controller.unbind('<Button-1>')
+                return
 
-        self.MATeng.MLCuration(sample, includelist, nargout = 0)
+        #Running locator with reload
         self.sampleloc = locator(sample, reload=True)
 
         for neuron in includelist:

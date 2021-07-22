@@ -1,4 +1,5 @@
 #Caching version
+#to do: reload based on soma.txt modified date
 import sys
 from pathlib import PurePath
 filepath = PurePath(__file__)

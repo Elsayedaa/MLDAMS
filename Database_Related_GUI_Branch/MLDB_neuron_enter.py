@@ -54,6 +54,31 @@ class Neuronposter:
         self.brainarea_ids = self.brainarea_ids() #dictionary of Allen Atlas brain area IDs in the database keyed by brain area names
         self.sampledata = self.sampledata() #dictionary of sample ids and their corresponding injection ids keyed by sample names
         #self.sampledata dictionary structure {"sample name": {"Id": sample id,"injectionId": sample injection id}}
+    
+    def in_sample(self, *sample):
+        with open(r"{}\{}\insample.json".format(self.folderpath, self.GQLDir)) as f:
+            q = requests.post(self.sampleapi, json={'query':f.read()})
+            response = q.json()
+        main_list = response["data"]["neurons"]["items"]
+        main_list
+        neurons_in_sample = {}
+        for dic in main_list:
+            timestamp = dic["injection"]["sample"]["sampleDate"]
+            sampledate = datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
+            samplename = sampledate[:sampledate.index("T")]
+
+            neuron = dic["tag"]
+
+            if samplename not in neurons_in_sample:
+                neurons_in_sample[samplename] = []
+                neurons_in_sample[samplename].append(neuron)
+            else:
+                neurons_in_sample[samplename].append(neuron)
+
+        if sample == ():
+            return neurons_in_sample
+        else:
+            return neurons_in_sample[sample[0]]
 
     #retrieves a dictionary of ids for Allen Atlas brain areas in the database by querying the database
     def brainarea_ids(self):
@@ -64,7 +89,8 @@ class Neuronposter:
 
     #retrieves a dictionary with keys x,y,z for the coordinates of a particular neuron by utilizing the 'parser' anw object
     def coordinateRetriever(self, tag):
-        clist = [float(c) for c in self.parser.ws["Neuron Location (µm)"][f"{self.sample}_{tag}"].strip(" ").strip("[]").split(", ")]
+        clist = [float(c.strip("'").strip('"').strip(" ")) for c in self.parser.ws["Neuron Location (µm)"][f"{self.sample}_{tag}"].strip("[]").split(",")]
+        #clist = [float(c) for c in self.parser.ws["Neuron Location (µm)"][f"{self.sample}_{tag}"].strip(" ").strip("[]").split(", ")]
         return {"x":clist[0],"y":clist[1],"z":clist[2]}
 
     #creates a dictionary of ids needed to post a neuron to a sample in the database
@@ -125,10 +151,20 @@ class Neuronposter:
 
     def post_neuron(self, tag):
         with open(r"{}\{}\addneuron.json".format(self.folderpath, self.GQLDir)) as addneuron:
+
+            #only posts if the neuron exists in tracing_complete
+            if os.path.isdir(r"\\dm11\mousebrainmicro\tracing_complete\{}\{}".format(self.sample, tag)):
+                pass
+            else:
+                print(f"File folder for {self.sample}_{tag} does not exist in the Tracing Complete folder, skipping...\n")
+                return
+
+            #Checks if the brain area is a valid Allen ontology soma compartment    
             try:
                 brainAreaID = self.brainarea_ids[locator(self.sample,tag).replace(",","")]
             except KeyError:
-                print(f"Brain area for {tag} does not exist in the Allen Atlas. Check for typos in the soma.txt file.")
+                print(f"Brain area for {tag} does not exist in the Allen Atlas; input has been skipped. Check for typos in the soma.txt file.\n")
+                return
 
             #looking up the injection ID for the sample
             #the injection ID is needed to post the neuron to the correct sample
@@ -142,7 +178,7 @@ class Neuronposter:
                 coordinates = self.coordinateRetriever(tag)
             except KeyError:
                 coordinates = {'x': None, 'y': None, 'z': None}
-                print(f"Could not retrieve coordinates for {tag} because it was not found in the Active Neuron Worksheet,\nmake sure there are no typos in the Neuron Name.")
+                print(f"Could not retrieve coordinates for {tag} because it was not found in the Active Neuron Worksheet,\nmake sure there are no typos in the Neuron Name.\n")
 
             #entering all the required variables
             variables = {
@@ -156,11 +192,22 @@ class Neuronposter:
             }
 
             #posting the neuron to the database
-            q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
-            if q.json()['data']['createNeuron']['error'] == None:
-                print(f"Neuron {tag} posted successfully.\n")
+
+            #only posts the neuron if it does not already have a container posted in the database.
+            if self.sample not in self.in_sample():
+                q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
+                if q.json()['data']['createNeuron']['error'] == None:
+                    print(f"Neuron {tag} posted successfully.\n")
+                else:
+                    print(f"Neuron {tag} could not be posted, error message:{q.json()['data']['createNeuron']['error']}")
+            elif tag not in self.in_sample(self.sample):
+                q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
+                if q.json()['data']['createNeuron']['error'] == None:
+                    print(f"Neuron {tag} posted successfully.\n")
+                else:
+                    print(f"Neuron {tag} could not be posted, error message:{q.json()['data']['createNeuron']['error']}")
             else:
-                print(f"Neuron {tag} could not be posted, error message:{q.json()['data']['createNeuron']['error']}")
+                print(f"{tag} neuron container has already been posted to the database. Input has been skipped. Please delete the existing neuron container first if you want to replace it.\n")
 
     #posts all neurons from the sample with a completed consensus to the database
     def post_ALL_neurons(self):
@@ -173,11 +220,8 @@ class Neuronposter:
                 samplename = samplestring[0]
                 neurontag = samplestring[1]
 
-                #Checks to see if the file folder for the neuron exists before posting
-                if os.path.isdir(r"\\dm11\mousebrainmicro\tracing_complete\{}\{}".format(samplename, neurontag)):
-                    self.post_neuron(neurontag)
-                else:
-                    print(f"File folder for {neurontag} does not exist in the Tracing Complete folder, skipping...")
+                self.post_neuron(neurontag)
+
         except requests.exceptions.ConnectionError:
             print("The Neuron Broswer Database is offline. Contact Patrick Edson if this is unexpected.")
         except UnboundLocalError:
@@ -215,6 +259,7 @@ class SWCUploader:
 
         self.neuronids = {}
         self.compile_neuron_ids()
+        self.id_tstructure_mapper()
 
         with open(r"{}\{}\tracingstructures.json".format(self.folderpath, self.GQLDir)) as f:
             q = requests.post(self.tracingapi, json={'query':f.read()})
@@ -236,6 +281,22 @@ class SWCUploader:
         jsonarray = np.array(q.json()['data']["neurons"]["items"])
         np_extract_neuron_id = np.vectorize(self.extract_neuron_id, otypes=[dict])
         np.where(np_extract_neuron_id(jsonarray))
+    
+    #checks which tracing structures have already been uploaded to the selected neuron container
+    def id_tstructure_mapper(self):
+        with open(r"{}\{}\tracings_present.json".format(self.folderpath, self.GQLDir)) as f:
+            q = requests.post(self.tracingapi, json={'query':f.read()})
+            response = q.json()
+
+        main_list = response["data"]["tracings"]["tracings"]
+        main_list
+        self.id_tstructure_map = {}
+        for dic in main_list:
+            if dic["neuron"]["id"] not in self.id_tstructure_map:
+                self.id_tstructure_map[dic["neuron"]["id"]] = []
+                self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])
+            else:
+                self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])      
 
     def get_neuronFiles(self, tag):
         axonpath = r"\\dm11\mousebrainmicro\tracing_complete\{}\{}\consensus.swc".format(self.sample,tag)
@@ -245,62 +306,97 @@ class SWCUploader:
         return {'axon': axonfile, 'dendrite': dendritefile}
 
     def uploadNeuron(self, tag):
+
+        #grabbing the neuron id, upload will be skipped if the selected neuron does not have a container posted to the database
+        try:
+            neuron_id = self.neuronids[f"{self.sample}_{tag}"]
+        except KeyError:
+            print(f"{self.sample}_{tag} sample or neuron container not found in the database; upload has been skipped. Make sure sample and tag have been posted to the database.\n")
+            return
+
+        #upload will be skipped if the neuron does not exist in the tracing_complete folder
+        if os.path.isdir(r"\\dm11\mousebrainmicro\tracing_complete\{}\{}".format(self.sample, tag)):
+            pass
+        else:
+            print(f"File folder for {tag} does not exist in the Tracing Complete folder, upload skipped.\n")
+            return
+
+        #initializing the variables
         axon_variables = {
             'annotator':self.tracedby[f"{self.sample}_{tag}"],
-            'neuronid':self.neuronids[f"{self.sample}_{tag}"],
+            'neuronid':neuron_id,
             'structureid':self.structure_ids['axon'],
             'file':self.get_neuronFiles(tag)['axon']
         }
         dendrite_variables = {
             'annotator':self.tracedby[f"{self.sample}_{tag}"],
-            'neuronid':self.neuronids[f"{self.sample}_{tag}"],
+            'neuronid':neuron_id,
             'structureid':self.structure_ids['dendrite'],
             'file':self.get_neuronFiles(tag)['dendrite']
         }
 
+        #initializing the transport service
         transport = AIOHTTPTransport(url=self.tracingapi)
         client = Client(transport=transport)
 
+        #uploading the selected neuron SWCs
         with open(r"{}\{}\uploadswc.json".format(self.folderpath, self.GQLDir)) as upload:
             q = gql(upload.read())
+
+            #uploading the axon SWC, upload will be skipped if the axon has already been uploaded to the selected neuron container
             try:
-                axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
-                print(f"{tag} axon uploaded")
+                if neuron_id in self.id_tstructure_map:
+                    if "axon" not in self.id_tstructure_map[neuron_id]:
+                        axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
+                        print(f"{tag} axon uploaded")
+                    else:
+                        print(f"{tag} axon SWC already exists in the database. Upload has been skipped. Please delete the existing SWC first if you want to replace it.\n")
+                else:
+                    axon_response = client.execute(q, variable_values = axon_variables, upload_files = True)
+                    print(f"{tag} axon uploaded")      
             except asyncio.exceptions.TimeoutError:
                 print(f"{tag} axon uploaded.")
                 pass
             except aiohttp.client_exceptions.ServerDisconnectedError:
-                print(f"Database server is down.")
+                print(f"Database server is down. Seek assistance in the #database channel in Slack.")
+
+            #uploading the dendrite SWC, upload will be skipped if the dendrite has already been uploaded to the selected neuron container
             try:
-                dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
-                print(f"{tag} dendrite uploaded.")
+                if neuron_id in self.id_tstructure_map:
+                    if "dendrite" not in self.id_tstructure_map[neuron_id] or neuron_id not in self.id_tstructure_map:
+                        dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
+                        print(f"{tag} dendrite uploaded.")
+                    else:
+                        print(f"{tag} dendrite SWC already exists in the database. Upload has been skipped. Please delete the existing SWC first if you want to replace it.\n")
+                else:
+                    dendrite_response = client.execute(q, variable_values = dendrite_variables, upload_files = True)
+                    print(f"{tag} dendrite uploaded.")
             except asyncio.exceptions.TimeoutError:
                 print(f"{tag} dednrite uploaded.")
                 pass
             except aiohttp.client_exceptions.ServerDisconnectedError:
-                print(f"Database server is down.")
+                print(f"Database server is down. Seek assistance in the #database channel in Slack.")
 
     def uploadALLNeurons(self):
         for neuron in self.parser.consensuscompleteList:
             samplestring = neuron.split("_")
             samplename = samplestring[0]
             neurontag = samplestring[1]
-            if os.path.isdir(r"\\dm11\mousebrainmicro\tracing_complete\{}\{}".format(samplename, neurontag)):
-                self.uploadNeuron(neurontag)
-            else:
-                print(f"File folder for {neurontag} does not exist in the Tracing Complete folder, upload skipped.")
+
+            self.uploadNeuron(neurontag)
         print(f"{self.sample} finished uploading.")
 
 
 ##########################################################################
 #example of a post to the sandbox database
-#nPoster = Neuronposter("2019-09-06","sandbox")
-#nPoster.post_neuron("G-002")
+#nPoster = Neuronposter("2020-01-23","sandbox")
+#nPoster.post_neuron("G-001")
 #nPoster.post_ALL_neurons()
-#uploader = SWCUploader("2019-08-08","sandbox")
+#uploader = SWCUploader("2020-09-15","sandbox")
 #uploader.uploadALLNeurons()
 #print(uploader.get_neuronFiles("G-001"))
-#uploader.uploadNeuron("G-009")
+#for n in ['G-005', 'G-069']:
+#    uploader.uploadNeuron(n)
 #print(uploader.uploadNeuron('G-005'))
 #print(uploader.structure_ids)
 #print(uploader.neuronids)

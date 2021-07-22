@@ -1,0 +1,12 @@
+query {
+    tracings {
+      tracings {
+        neuron {
+          id
+        }
+        tracingStructure {
+          name
+        }
+      }
+    }
+  }
