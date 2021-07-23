@@ -216,7 +216,7 @@ class Entry_GUI(Frame):
             self.controller.unbind('<FocusIn>')
             self.controller.unbind('<Button-1>')
 
-        except KeyError:
+        except KeyError: #Exception should now be reduntant as it exists in the SWCUploader class
             self.imRunning.destroy()
             self.controller.unbind('<FocusIn>')
             self.controller.unbind('<Button-1>')

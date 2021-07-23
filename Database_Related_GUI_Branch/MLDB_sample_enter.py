@@ -7,6 +7,7 @@ filepath = PurePath(__file__)
 abspath = str(filepath.parent)
 appParentDir = abspath.replace(r'\Database_Related_GUI_Branch','')
 import requests
+import datetime
 import re
 import os
 import os.path
@@ -47,17 +48,26 @@ class MLDB_sample_enter:
         self.make_fluor_id_source = 'source'
         self.createSample_source = 'source'
         self.GQLDir = r'prodv_queries&mutations'
-        #else:
-            #print("URL entered does not match Sandbox or Production database.")
 
+        self.db_parse()
     #                            Standalone functions:
-
-    #retrieves animal ID from imaged samples board for any sample entered as an argument
-    def get_animalID(self, sample):
-        if self.isbdf.loc[sample,"Animal ID"] == "":
-            return "Id not found"
-        else:
-            return self.isbdf.loc[sample,"Animal ID"]
+    def db_parse(self):
+        with open(r"{}\{}\sampledata.json".format(self.folderpath, self.GQLDir)) as f:
+            q = requests.post(self.sampleapi, json={'query':f.read()})
+            response = q.json()
+            main_list = response["data"]["samples"]["items"]
+            self.in_db = {}
+            for dic in main_list:
+                timestamp = dic["sampleDate"]
+                sampledate = datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
+                samplename = sampledate[:sampledate.index("T")]
+                self.in_db[samplename] = True
+        #retrieves animal ID from imaged samples board for any sample entered as an argument
+        def get_animalID(self, sample):
+            if self.isbdf.loc[sample,"Animal ID"] == "":
+                return "Id not found"
+            else:
+                return self.isbdf.loc[sample,"Animal ID"]
 
     #retrieves tag from imaged samples board for any sample entered as an argument
     #is called by get_injection_viruses() because it requires similar operations
@@ -287,6 +297,12 @@ class MLDB_sample_enter:
 
     #posts a new sample with the sample name, tag, animal id, and mouse strain to the database for any sample passed as an argument
     def post_sample(self, sample):
+        try:
+            self.in_db[sample]
+            print(f"{sample} has already been posted to the database. Please delete the existing sample container first if you want to replace it.\n")
+            return
+        except KeyError:
+            pass
         try:
             s = sample.split('-')
             with open(r"{}\{}\createsample.json".format(self.folderpath, self.GQLDir)) as createsample:
