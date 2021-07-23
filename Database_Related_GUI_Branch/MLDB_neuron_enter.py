@@ -54,6 +54,8 @@ class Neuronposter:
         self.brainarea_ids = self.brainarea_ids() #dictionary of Allen Atlas brain area IDs in the database keyed by brain area names
         self.sampledata = self.sampledata() #dictionary of sample ids and their corresponding injection ids keyed by sample names
         #self.sampledata dictionary structure {"sample name": {"Id": sample id,"injectionId": sample injection id}}
+
+        self.in_sample()
     
     def in_sample(self, *sample):
         with open(r"{}\{}\insample.json".format(self.folderpath, self.GQLDir)) as f:
@@ -61,7 +63,7 @@ class Neuronposter:
             response = q.json()
         main_list = response["data"]["neurons"]["items"]
         main_list
-        neurons_in_sample = {}
+        self.neurons_in_sample = {}
         for dic in main_list:
             timestamp = dic["injection"]["sample"]["sampleDate"]
             sampledate = datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -69,16 +71,16 @@ class Neuronposter:
 
             neuron = dic["tag"]
 
-            if samplename not in neurons_in_sample:
-                neurons_in_sample[samplename] = []
-                neurons_in_sample[samplename].append(neuron)
+            if samplename not in self.neurons_in_sample:
+                self.neurons_in_sample[samplename] = []
+                self.neurons_in_sample[samplename].append(neuron)
             else:
-                neurons_in_sample[samplename].append(neuron)
+                self.neurons_in_sample[samplename].append(neuron)
 
         if sample == ():
-            return neurons_in_sample
+            return self.neurons_in_sample
         else:
-            return neurons_in_sample[sample[0]]
+            return self.neurons_in_sample[sample[0]]
 
     #retrieves a dictionary of ids for Allen Atlas brain areas in the database by querying the database
     def brainarea_ids(self):
@@ -194,13 +196,13 @@ class Neuronposter:
             #posting the neuron to the database
 
             #only posts the neuron if it does not already have a container posted in the database.
-            if self.sample not in self.in_sample():
+            if self.sample not in self.neurons_in_sample:
                 q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
                 if q.json()['data']['createNeuron']['error'] == None:
                     print(f"Neuron {tag} posted successfully.\n")
                 else:
                     print(f"Neuron {tag} could not be posted, error message:{q.json()['data']['createNeuron']['error']}")
-            elif tag not in self.in_sample(self.sample):
+            elif tag not in self.neurons_in_sample[self.sample]:
                 q = requests.post(self.sampleapi, json={'query': addneuron.read(), 'variables': variables})
                 if q.json()['data']['createNeuron']['error'] == None:
                     print(f"Neuron {tag} posted successfully.\n")
@@ -292,11 +294,14 @@ class SWCUploader:
         main_list
         self.id_tstructure_map = {}
         for dic in main_list:
-            if dic["neuron"]["id"] not in self.id_tstructure_map:
-                self.id_tstructure_map[dic["neuron"]["id"]] = []
-                self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])
-            else:
-                self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])      
+            try:
+                if dic["neuron"]["id"] not in self.id_tstructure_map:
+                    self.id_tstructure_map[dic["neuron"]["id"]] = []
+                    self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])
+                else:
+                    self.id_tstructure_map[dic["neuron"]["id"]].append(dic["tracingStructure"]["name"])
+            except TypeError:
+                print("Uploader found an SWC without an associated container in the database.\nThis may have been caused by an SWC that failed to transform. Try checking the transform manager.\n")      
 
     def get_neuronFiles(self, tag):
         axonpath = r"\\dm11\mousebrainmicro\tracing_complete\{}\{}\consensus.swc".format(self.sample,tag)
