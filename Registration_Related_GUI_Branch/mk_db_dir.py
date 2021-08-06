@@ -58,60 +58,57 @@ def copyto_db(dir, guicall = False):
         return
 
     #getting the registration result directory 
+    reg_result_dir = None
     for f in os.listdir(sample_reg_dir):
         if f.lower() == "result":
             reg_result_dir = r"{}\{}".format(sample_reg_dir,f)
 
     #checking if registration result directory exists
-    if os.path.isdir(reg_result_dir):
+    if reg_result_dir == None:
+        print("Registration 'Result' folder not found.\nIf you see the folder, make sure it is named correctly")
+        return
+    
+    #getting the final transform and horta obj directories
+    final_transform_dir = None
+    HortaObj_dir = None
+    for f in os.listdir(reg_result_dir):
+        if re.search(r"[Tt]ransform.\d{4}-\d{2}-\d{2}.h5",f):
+            final_transform = f
+            final_transform_dir = r"{}\{}".format(reg_result_dir, f) #foi2
+        if f.lower() == "hortaobj":
+            HortaObj_dir = r"{}\{}".format(reg_result_dir,f) #foi3
 
-        #getting the final transform and horta obj directories
-        for f in os.listdir(reg_result_dir):
-            if re.search(r"[Tt]ransform.\d{4}-\d{2}-\d{2}.h5",f):
-                final_transform = f
-                final_transform_dir = r"{}\{}".format(reg_result_dir, f) #foi2
-            if f.lower() == "hortaobj":
-                HortaObj_dir = r"{}\{}".format(reg_result_dir,f) #foi3
+    #checking if final transform file exists
+    if final_transform_dir == None:
+        print("Final transform file not found\nIf you see the file, make sure it is named correctly")
+        return
 
-        #checking if final transform file exists
-        if final_transform in os.listdir(reg_result_dir):
-            pass
-        else:
-            print("Final transform file not found")
-            return
-
-        #checking to see if HortaObj folder exists
-        if os.path.isdir(HortaObj_dir):
-            pass
-        else:
-            print("HortaObj folder does not exist")
-
-    else:
-        print("Registration result folder does not exist.")
+    #checking to see if HortaObj folder exists
+    if HortaObj_dir == None:
+        print("HortaObj folder does not exist\nIf you see the folder, make sure it is named correctly")
         return
 
     #getting registration final directory
+    final_dir = None
     for f in os.listdir(sample_reg_dir):
         if f.lower() == "final":
             final_dir = r"{}\{}".format(sample_reg_dir,f)
-        
-    #checking to see if the registration final directory exists
-    if os.path.isdir(final_dir):
 
-        #getting final image volume file
-        for f in os.listdir(final_dir):
-            if re.search(r"\d{4}-\d{2}-\d{2}_[Ff]inal.nrrd", f):
-                final_volume = f
-                final_volume_dir = r"{}\{}".format(final_dir, f) #foi4
-        
-        #checking to see if the final image volume file exists
-        if final_volume in os.listdir(final_dir):
-            pass
-        else:
-            print("Final transformed volume file not found.")
-            return
-    else:
-        print("Registration final directory does not exist")
+    #checking to see if the registration final directory exists
+    if final_dir == None:
+        print("Registration 'Final' folder not found.\nIf you see the folder, make sure it is named correctly")
+        return
+
+    #getting final image volume file
+    final_volume_dir = None
+    for f in os.listdir(final_dir):
+        if re.search(r"\d{4}-\d{2}-\d{2}_[Ff]inal.nrrd", f):
+            final_volume = f
+            final_volume_dir = r"{}\{}".format(final_dir, f) #foi4
+
+    #checking to see if the final image volume file exists
+    if final_volume_dir == None:
+        print("Final transformed volume file not found.\nIf you see the file, make sure it is named correctly.")
         return
 
     #copy files to database folder
