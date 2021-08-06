@@ -139,12 +139,13 @@ def copyto_db(dir, guicall = False):
         print("Final transformed volume copied sucessfully.")
     t3 = threading.Thread(target = copy_finalvolume)
 
-    t1.start()
-    t2.start()
-    t3.start()
-
+    #t1.start()
+    #t2.start()
+    #t3.start()
+    copy_level2()
+    copy_hortaobj()
+    copy_finalvolume()
     copy_finaltransform()
-
     return
 
 
