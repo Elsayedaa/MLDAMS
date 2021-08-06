@@ -439,7 +439,11 @@ The MLDAMS also utilizes standard libraries including:
 	-------
 	Methods:
 	-------
-
+	db_parse():
+		-Creates a dictionary of sample containers that exist in the database as keys.
+		 The only value per key is a "True" boolean to expedite searching. You can
+		 key the dictionary with the sample string to query whether it exists. A
+		 True will return if it does exists and a KeyError will return if not.
 
 	get_animalID(sample):
 		-Retrieves animal ID from imaged samples board for any sample entered as an 
@@ -652,6 +656,9 @@ The MLDAMS also utilizes standard libraries including:
 	Methods:
 	-------
 
+	in_sample():
+		-Generates a dictionary with samples as keys and a list of the neuron containers
+		 that exist for each sample in the database as values.
 
 	brainarea_ids():
 		-Compiles the injection area ids that have already been defined in the database 
@@ -761,7 +768,12 @@ The MLDAMS also utilizes standard libraries including:
 
 	compile_neuron_ids():
 		-Iterates through all the jsons values nested in the "items" key of the graphql
-		 response jsons and calls extract_neuron_id() for each one. 
+		 response jsons and calls extract_neuron_id() for each one.
+
+	id_tstructure_mapper():
+		-Creates a dictionary with neuron container IDs as keys and a list of tracing
+		 structures names (axon, dendrite) that have been uploaded to the neuron container
+		 as values.
 
 	get_neuronFiles(tag):
 		-Returns a lookup dictionary with the axon and dendrite swc binaries associated with

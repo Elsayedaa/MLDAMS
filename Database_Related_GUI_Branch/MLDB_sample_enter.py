@@ -62,12 +62,13 @@ class MLDB_sample_enter:
                 sampledate = datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%dT%H:%M:%SZ')
                 samplename = sampledate[:sampledate.index("T")]
                 self.in_db[samplename] = True
-        #retrieves animal ID from imaged samples board for any sample entered as an argument
-        def get_animalID(self, sample):
-            if self.isbdf.loc[sample,"Animal ID"] == "":
-                return "Id not found"
-            else:
-                return self.isbdf.loc[sample,"Animal ID"]
+                
+    #retrieves animal ID from imaged samples board for any sample entered as an argument
+    def get_animalID(self, sample):
+        if self.isbdf.loc[sample,"Animal ID"] == "":
+            return "Id not found"
+        else:
+            return self.isbdf.loc[sample,"Animal ID"]
 
     #retrieves tag from imaged samples board for any sample entered as an argument
     #is called by get_injection_viruses() because it requires similar operations
