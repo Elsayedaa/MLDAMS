@@ -589,24 +589,24 @@ The MLDAMS also utilizes standard libraries including:
 		
 
                                             post_sample
-					         |
-		               	                 |
+					                             |
+		               	                         |
                          ________________________|________________________
-                        /  |             |              |                 \
-                       /   |             |              |                  \
-                      /    |             |              |                   \
-                     /     |             |              |                    \
-                    /      |             |              |                     \
-                   /       |             |              |              make_registration
-      get_animal_id     get_tag    make_strain_id       |                 /         \
-	                              /    \            |    get_transform_name   get_transform_path
-	                      get_strain   strain_ids   |                                 |
-			                                |                                 |
-			     		                |                              get_tag
-	                                                |
-					                |
-						        |
-						        |
+                        /  |             |             |                  \
+                       /   |             |             |                   \
+                      /    |             |             |                    \
+                     /     |             |             |                     \
+                    /      |             |             |                      \
+                   /       |             |             |               make_registration
+      get_animal_id     get_tag    make_strain_id      |                  /         \
+	                              /    \               |  get_transform_name   get_transform_path
+	                      get_strain   strain_ids      |                               |
+			                                           |                               |
+			     		                               |                             get_tag
+	                                                   |
+					                                   |
+						                               |
+						                               |
                                                   make_injection                                      
                                                  /       |      \                                                                                        
                                                 /        |       \                                      
